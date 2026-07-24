@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labib Shahriar — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#141414;
+    --panel-2:#1c1c1c;
+    --line:#2a2a2a;
+    --line-soft:#232323;
+    --yellow:#f2bf1f;
+    --yellow-dim:#8a7315;
+    --yellow-glow:rgba(242,191,31,0.16);
+    --text:#f3f2ee;
+    --text-dim:#9d9a92;
+    --text-dimmer:#68655e;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:20px;
+  }
+  @media (max-width:640px){body{padding:12px;}}
+  a{color:inherit;text-decoration:none;}
+  .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--yellow-dim);
+  }
+
+  @media (pointer:fine){
+    *{cursor:none !important;}
+  }
+  #custom-cursor{
+    position:fixed;top:0;left:0;width:22px;height:22px;
+    pointer-events:none;z-index:99999;
+    transform:translate(-3px,-3px);
+    display:none;
+  }
+  @media (pointer:fine){ #custom-cursor{display:block;} }
+  #custom-cursor svg{display:block;transform-origin:4px 3px;}
+  #custom-cursor.pop svg{animation:cursor-pop .26s ease;}
+  @keyframes cursor-pop{
+    0%{transform:scale(1);}
+    45%{transform:scale(1.55) rotate(-6deg);}
+    100%{transform:scale(1);}
+  }
+  .click-burst{position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;z-index:99998;}
+  .burst-ring{
+    position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px;
+    border:2px solid var(--yellow);border-radius:50%;
+    animation:burst-ring-anim .75s cubic-bezier(.15,.7,.3,1) forwards;
+  }
+  .burst-ring.ring-2{
+    border-color:var(--text);opacity:.5;
+    animation:burst-ring-anim .95s cubic-bezier(.15,.7,.3,1) .08s forwards;
+  }
+  @keyframes burst-ring-anim{
+    0%{transform:scale(.2);opacity:1;}
+    100%{transform:scale(4.2);opacity:0;}
+  }
+  .burst-particle{
+    position:absolute;left:0;top:0;width:6px;height:6px;margin:-3px;
+    background:var(--yellow);border-radius:50%;
+    animation:burst-particle-anim .8s cubic-bezier(.15,.6,.25,1) forwards;
+    animation-delay:var(--delay,0ms);
+  }
+  @keyframes burst-particle-anim{
+    0%{transform:translate(0,0) scale(1);opacity:1;}
+    70%{opacity:1;}
+    100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0;}
+  }
+  .burst-spark{
+    position:absolute;left:0;top:0;width:2px;height:12px;margin:-6px -1px;
+    background:linear-gradient(var(--yellow), transparent);border-radius:2px;
+    transform-origin:center;
+    animation:spark-anim .5s ease-out forwards;
+  }
+  @keyframes spark-anim{
+    0%{transform:rotate(var(--rot)) translateY(0) scaleY(1);opacity:1;}
+    100%{transform:rotate(var(--rot)) translateY(-22px) scaleY(.3);opacity:0;}
+  }
+
+  /* ---------- layout ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:18px;
+    max-width:1360px;
+    margin:0 auto;
+  }
+  @media (max-width:920px){
+    .shell{grid-template-columns:1fr;}
+  }
+
+  .sidebar, .content-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:22px;
+  }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    padding:36px 28px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+    position:sticky;
+    top:20px;
+    align-self:start;
+    height:fit-content;
+  }
+  @media (max-width:920px){
+    .sidebar{position:relative;top:0;}
+  }
+  .avatar-wrap{
+    width:128px;height:128px;
+    border-radius:22px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .avatar-img{width:100%;height:100%;object-fit:cover;}
+  .avatar-initials{
+    font-family:'Sora',sans-serif;font-weight:700;font-size:36px;color:var(--yellow);
+    align-items:center;justify-content:center;width:100%;height:100%;
+  }
+  .name-block h1{
+    font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px;
+  }
+  .tagline-pill{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:12px;color:var(--text-dim);
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    padding:5px 10px;border-radius:20px;
+    width:fit-content;
+  }
+  .tagline-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);}
+
+  .info-list{display:flex;flex-direction:column;gap:16px;}
+  .info-item{display:flex;gap:12px;align-items:flex-start;}
+  .info-icon{
+    width:30px;height:30px;flex-shrink:0;
+    border:1px solid var(--line);
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--yellow);
+    background:var(--panel-2);
+  }
+  .info-icon svg{width:15px;height:15px;}
+  .info-text .label{margin-bottom:3px;}
+  .info-text .value{font-size:13.5px;color:var(--text);word-break:break-word;}
+  .info-text .value.muted{color:var(--text-dim);font-style:italic;}
+
+  .social-row{display:flex;gap:10px;margin-top:auto;padding-top:8px;flex-wrap:wrap;}
+  .social-btn{
+    width:38px;height:38px;border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text-dim);
+    transition:.2s ease;
+  }
+  .social-btn svg{width:16px;height:16px;}
+  .social-btn:hover{border-color:var(--yellow-dim);color:var(--yellow);background:var(--yellow-glow);}
+
+  /* ---------- main content ---------- */
+  .content-box{padding:36px 44px 50px;}
+  @media (max-width:640px){.content-box{padding:26px 20px 36px;}}
+
+  .tabbar{
+    display:flex;gap:6px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    border-radius:12px;
+    padding:5px;
+    width:fit-content;
+    margin-bottom:40px;
+    position:relative;
+  }
+  .tab-btn{
+    font-family:'Sora',sans-serif;
+    font-size:13.5px;font-weight:600;
+    color:var(--text-dim);
+    padding:9px 18px;
+    border-radius:8px;
+    border:none;background:none;
+    transition:color .2s ease;
+    position:relative;
+    z-index:1;
+  }
+  .tab-btn.active{color:#0a0a0a;}
+  .tab-indicator{
+    position:absolute;top:5px;left:5px;height:calc(100% - 10px);
+    background:var(--yellow);border-radius:8px;
+    transition:transform .35s cubic-bezier(.65,0,.35,1), width .35s cubic-bezier(.65,0,.35,1);
+    z-index:0;
+  }
+
+  .panel{display:none;animation:fade-in .4s ease;}
+  .panel.active{display:block;}
+  @keyframes fade-in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--yellow);margin-bottom:10px;
+  }
+  h2.section-title{
+    font-family:'Sora',sans-serif;font-size:30px;font-weight:700;margin-bottom:22px;
+  }
+  .rule{width:56px;height:3px;background:var(--yellow);border-radius:2px;margin-bottom:26px;}
+
+  .about-text p{
+    font-size:15px;line-height:1.75;color:var(--text-dim);margin-bottom:18px;max-width:640px;
+  }
+  .about-text b{color:var(--text);font-weight:600;}
+  .about-text .hl{color:var(--yellow);font-weight:600;}
+
+  .doing-heading{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;margin:40px 0 20px;}
+  .doing-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.doing-grid{grid-template-columns:1fr;}}
+  .doing-card{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    display:flex;gap:14px;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .doing-card:hover{border-color:var(--yellow-dim);transform:translateY(-2px);}
+  .doing-icon{
+    width:42px;height:42px;flex-shrink:0;
+    border-radius:10px;
+    background:var(--yellow-glow);
+    border:1px solid var(--yellow-dim);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--yellow);
+  }
+  .doing-icon svg{width:20px;height:20px;}
+  .doing-card h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;}
+  .doing-card p{font-size:13px;color:var(--text-dim);line-height:1.55;}
+  .doing-card a.link{color:var(--yellow);font-size:12.5px;display:block;margin-top:2px;}
+  .doing-card a.link:hover{text-decoration:underline;}
+
+  /* ---------- timeline ---------- */
+  .timeline{position:relative;padding-left:6px;margin-top:8px;}
+  .timeline-line{
+    position:absolute;left:19px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(to bottom, var(--yellow-dim), var(--line) 90%);
+  }
+  .timeline-item{position:relative;padding-left:52px;padding-bottom:38px;}
+  .timeline-item:last-child{padding-bottom:0;}
+  .timeline-dot{
+    position:absolute;left:8px;top:0;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--panel-2);border:2px solid var(--yellow);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--yellow);
+  }
+  .timeline-dot svg{width:12px;height:12px;}
+  .timeline-item.current .timeline-dot{background:var(--yellow);color:#0a0a0a;}
+  .timeline-card{
+    background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:18px 20px;
+  }
+  .timeline-card h3{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;}
+  .timeline-card .years{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--yellow);margin-bottom:8px;}
+  .timeline-card .stream{font-size:13.5px;color:var(--text-dim);}
+  .badge-current{
+    display:inline-block;font-size:10.5px;font-family:'IBM Plex Mono',monospace;
+    background:var(--yellow-glow);color:var(--yellow);border:1px solid var(--yellow-dim);
+    padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;
+  }
+
+  /* ---------- projects ---------- */
+  .projects-empty{
+    border:1px dashed var(--line);border-radius:var(--radius);padding:48px 24px;
+    text-align:center;color:var(--text-dim);background:var(--panel-2);
+  }
+  .projects-empty .icon-big{
+    width:52px;height:52px;margin:0 auto 18px;border-radius:14px;
+    background:var(--yellow-glow);border:1px solid var(--yellow-dim);
+    display:flex;align-items:center;justify-content:center;color:var(--yellow);
+  }
+  .projects-empty .icon-big svg{width:26px;height:26px;}
+  .projects-empty h3{font-family:'Sora',sans-serif;color:var(--text);font-size:17px;margin-bottom:8px;}
+  .projects-empty p{font-size:13.5px;max-width:420px;margin:0 auto;line-height:1.6;}
+  .projects-empty a.gh{
+    display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:13px;color:var(--yellow);
+    border:1px solid var(--yellow-dim);padding:9px 16px;border-radius:9px;
+  }
+  .projects-empty a.gh:hover{background:var(--yellow-glow);}
+
+  /* ---------- contact ---------- */
+  .contact-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:20px;}
+  @media (max-width:760px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-card{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;display:flex;flex-direction:column;gap:14px;
+  }
+  .contact-card h3{font-family:'Sora',sans-serif;font-size:16px;margin-bottom:2px;}
+  .contact-card p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+  .contact-link-btn{
+    display:flex;align-items:center;gap:10px;
+    border:1px solid var(--line);background:var(--panel);
+    padding:12px 14px;border-radius:10px;font-size:13.5px;color:var(--text);
+    transition:.2s ease;
+  }
+  .contact-link-btn svg{width:17px;height:17px;color:var(--yellow);flex-shrink:0;}
+  .contact-link-btn:hover{border-color:var(--yellow-dim);background:var(--yellow-glow);}
+
+  form.msg-form{display:flex;flex-direction:column;gap:14px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.field-row{grid-template-columns:1fr;}}
+  .field label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;
+    color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:7px;
+  }
+  .field input, .field textarea{
+    width:100%;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:11px 13px;color:var(--text);font-family:'Inter',sans-serif;
+    font-size:13.5px;outline:none;transition:border-color .2s ease;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--yellow);}
+  .field textarea{resize:vertical;min-height:110px;}
+  .submit-btn{
+    font-family:'Sora',sans-serif;font-weight:600;font-size:13.5px;
+    background:var(--yellow);color:#0a0a0a;border:none;
+    padding:12px 20px;border-radius:9px;width:fit-content;
+    transition:transform .15s ease;
+  }
+  .submit-btn:hover{transform:translateY(-1px);}
+  .submit-btn:disabled{opacity:.6;transform:none;}
+  .form-note{font-size:11.5px;color:var(--text-dimmer);}
+  .form-status{font-size:12.5px;min-height:16px;}
+  .form-status.ok{color:#8fd18f;}
+  .form-status.err{color:#e08585;}
+
+  .footer-line{
+    margin-top:60px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg, transparent, var(--yellow-dim) 20%, var(--yellow) 50%, var(--yellow-dim) 80%, transparent);
+    background-size:200% 100%;
+    animation:shimmer 5s linear infinite;
+  }
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+</style>
+</head>
+<body>
+
+<div id="custom-cursor">
+  <svg viewBox="0 0 24 24" width="22" height="22">
+    <path d="M4 2 L4 20 L9 15 L12 22 L15 20.5 L12 13.5 L18 13.5 Z" fill="#f2bf1f" stroke="#0a0a0a" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;">
+      <div class="avatar-wrap">
+        <img src="logo.png" alt="Labib Shahriar" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="avatar-initials" style="display:none;">LS</span>
+      </div>
+      <div class="name-block">
+        <h1>Labib Shahriar</h1>
+        <div class="tagline-pill"><span class="dot"></span>Student &amp; Entrepreneur</div>
+      </div>
+    </div>
+
+    <div class="info-list">
+      <div class="info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 6.5c-1.4-.7-2.9-1.1-4.4-1.3l-.2.4a11 11 0 0 0-4.8 0l-.2-.4C8 5.4 6.4 5.8 5 6.5 2.6 10 1.9 13.4 2.2 16.8c1.7 1.3 3.4 2 5 2.5l.6-1.4c-.7-.3-1.4-.6-2-1.1.2-.1.3-.2.5-.3 3.9 1.8 8 1.8 11.8 0l.5.3c-.6.4-1.3.8-2 1.1l.6 1.4c1.6-.5 3.3-1.2 5-2.5.4-4.1-.6-7.5-2.2-10.3ZM9 14.2c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Zm6 0c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Z"/></svg>
+        </div>
+        <div class="info-text">
+          <div class="label">Discord</div>
+          <div class="value">labib.shahriar</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+        </div>
+        <div class="info-text">
+          <div class="label">Email</div>
+          <div class="value">shahriarl4bib@gmail.com</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.5c1 .4 2 .6 3 .7a2 2 0 0 1 1.7 2Z"/></svg>
+        </div>
+        <div class="info-text">
+          <div class="label">Phone</div>
+          <div class="value muted">Not purchased yet</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 9h18"/></svg>
+        </div>
+        <div class="info-text">
+          <div class="label">Birthday</div>
+          <div class="value">8 August</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        </div>
+        <div class="info-text">
+          <div class="label">Location</div>
+          <div class="value">Dumuria, Chandpur,<br>Cumilla — 3500</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="social-row">
+      <a class="social-btn" href="https://www.facebook.com/labibiscool" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5H17V3.6C16.6 3.6 15.5 3.5 14.2 3.5c-2.7 0-4.6 1.6-4.6 4.7v2.7H6.9V14h2.7v7h3.9Z"/></svg>
+      </a>
+      <a class="social-btn" href="https://discord.gg/Y3puTERzfp" target="_blank" rel="noopener" aria-label="Discord server">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 6.5c-1.4-.7-2.9-1.1-4.4-1.3l-.2.4a11 11 0 0 0-4.8 0l-.2-.4C8 5.4 6.4 5.8 5 6.5 2.6 10 1.9 13.4 2.2 16.8c1.7 1.3 3.4 2 5 2.5l.6-1.4c-.7-.3-1.4-.6-2-1.1.2-.1.3-.2.5-.3 3.9 1.8 8 1.8 11.8 0l.5.3c-.6.4-1.3.8-2 1.1l.6 1.4c1.6-.5 3.3-1.2 5-2.5.4-4.1-.6-7.5-2.2-10.3ZM9 14.2c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Zm6 0c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Z"/></svg>
+      </a>
+      <a class="social-btn" href="https://www.youtube.com/@real.astrozex/featured" target="_blank" rel="noopener" aria-label="YouTube channel 1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M10.5 9.5v5l4.3-2.5Z" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a class="social-btn" href="https://www.youtube.com/@indiagnito" target="_blank" rel="noopener" aria-label="YouTube channel 2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M10.5 9.5v5l4.3-2.5Z" fill="currentColor" stroke="none"/><circle cx="18.5" cy="6.5" r="2.2" fill="var(--yellow)" stroke="none"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <main class="content-box">
+    <div class="tabbar" id="tabbar">
+      <div class="tab-indicator" id="tab-indicator"></div>
+      <button class="tab-btn active" data-tab="about">About</button>
+      <button class="tab-btn" data-tab="study">Study</button>
+      <button class="tab-btn" data-tab="projects">Projects</button>
+      <button class="tab-btn" data-tab="contact">Contact</button>
+    </div>
+
+    <section class="panel active" id="panel-about">
+      <div class="eyebrow">Introduction</div>
+      <h2 class="section-title">About me</h2>
+      <div class="rule"></div>
+      <div class="about-text">
+        <p>Hello, I'm <b>Labib Shahriar</b>, a student from Bangladesh with a strong passion for <span class="hl">technology</span>, entrepreneurship, and building online businesses. Alongside my studies, I've spent the past few years exploring digital entrepreneurship, managing online communities, and learning how to create products and services that people genuinely find useful.</p>
+        <p>I'm especially interested in <span class="hl">Discord communities</span>, <span class="hl">Minecraft</span>, web technologies, and digital products. I've worked on creating online stores, designing Discord servers, developing bots, building websites, and experimenting with new ideas to improve user experiences. Every project has helped me develop problem-solving skills and a practical understanding of how online businesses operate.</p>
+        <p>Outside of work, I enjoy gaming, particularly Minecraft, staying up to date with new technology, and continuously learning new skills. I believe the best way to grow is through hands-on experience, curiosity, and the willingness to keep improving.</p>
+        <p>I'm a fast learner who enjoys taking on new challenges. My long-term goal is to build a successful technology company that creates innovative digital products, empowers communities, and provides opportunities for others. Whether it's through software, online services, or creative projects, I hope to make a meaningful impact while continuing to grow as both a developer and an entrepreneur.</p>
+        <p>I'm always open to connecting with like-minded people, collaborating on exciting projects, and turning ambitious ideas into reality.</p>
+      </div>
+
+      <h3 class="doing-heading">What I'm doing</h3>
+      <div class="doing-grid">
+        <div class="doing-card">
+          <div class="doing-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></div>
+          <div>
+            <h3>Student</h3>
+            <p>Currently studying in class 10 at Little Moon High School.</p>
+          </div>
+        </div>
+        <div class="doing-card">
+          <div class="doing-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6.5l-3 11"/></svg></div>
+          <div>
+            <h3>Web development</h3>
+            <p>Building modern websites and applications.</p>
+          </div>
+        </div>
+        <div class="doing-card">
+          <div class="doing-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M8 10.5v4M6 12.5h4"/><circle cx="16" cy="10.8" r="1"/><circle cx="18" cy="13.2" r="1"/></svg></div>
+          <div>
+            <h3>Gaming</h3>
+            <p>Minecraft, Clash of Clans, and more.</p>
+          </div>
+        </div>
+        <div class="doing-card">
+          <div class="doing-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.6-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.4.2 2.4.1 2.7.6.6 1 1.5 1 2.6 0 3.8-2.4 4.6-4.6 4.9.4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg></div>
+          <div>
+            <h3>GitHub</h3>
+            <a class="link" href="https://github.com/l4bibshahriar" target="_blank" rel="noopener">github.com/l4bibshahriar →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-study">
+      <div class="eyebrow">Education</div>
+      <h2 class="section-title">Study</h2>
+      <div class="rule"></div>
+
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></div>
+          <div class="timeline-card">
+            <h3>Little Moon High School</h3>
+            <div class="years">2021</div>
+            <div class="stream">PSC</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></div>
+          <div class="timeline-card">
+            <h3>Little Moon High School</h3>
+            <div class="years">2024</div>
+            <div class="stream">JSC</div>
+          </div>
+        </div>
+
+        <div class="timeline-item current">
+          <div class="timeline-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></div>
+          <div class="timeline-card">
+            <h3>Little Moon High School <span class="badge-current">Current</span></h3>
+            <div class="years">2026 – Current</div>
+            <div class="stream">SSC · Science</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-projects">
+      <div class="eyebrow">Work</div>
+      <h2 class="section-title">Projects</h2>
+      <div class="rule"></div>
+
+      <div class="projects-empty">
+        <div class="icon-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6.5l-3 11"/></svg></div>
+        <h3>More projects coming soon</h3>
+        <p>This section is under construction — GitHub repositories will be linked here as each project ships. Check back soon.</p>
+        <a class="gh" href="https://github.com/l4bibshahriar" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.6-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.4.2 2.4.1 2.7.6.6 1 1.5 1 2.6 0 3.8-2.4 4.6-4.6 4.9.4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
+          View GitHub profile
+        </a>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-contact">
+      <div class="eyebrow">Get in touch</div>
+      <h2 class="section-title">Contact me</h2>
+      <div class="rule"></div>
+
+      <div class="contact-grid">
+        <div class="contact-card">
+          <h3>Reach me directly</h3>
+          <p>Prefer a faster reply? Message me on Facebook or drop into my Discord server.</p>
+          <a class="contact-link-btn" href="https://www.facebook.com/labibiscool" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5H17V3.6C16.6 3.6 15.5 3.5 14.2 3.5c-2.7 0-4.6 1.6-4.6 4.7v2.7H6.9V14h2.7v7h3.9Z"/></svg>
+            Message on Facebook
+          </a>
+          <a class="contact-link-btn" href="https://discord.gg/Y3puTERzfp" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 6.5c-1.4-.7-2.9-1.1-4.4-1.3l-.2.4a11 11 0 0 0-4.8 0l-.2-.4C8 5.4 6.4 5.8 5 6.5 2.6 10 1.9 13.4 2.2 16.8c1.7 1.3 3.4 2 5 2.5l.6-1.4c-.7-.3-1.4-.6-2-1.1.2-.1.3-.2.5-.3 3.9 1.8 8 1.8 11.8 0l.5.3c-.6.4-1.3.8-2 1.1l.6 1.4c1.6-.5 3.3-1.2 5-2.5.4-4.1-.6-7.5-2.2-10.3ZM9 14.2c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Zm6 0c-.9 0-1.6-.9-1.6-1.9s.7-1.9 1.6-1.9 1.6.9 1.6 1.9-.7 1.9-1.6 1.9Z"/></svg>
+            Join my Discord
+          </a>
+        </div>
+
+        <div class="contact-card">
+          <h3>Send a message</h3>
+          <p>Fill this in and it'll land straight in my Discord. You'll get a reply back at the email you provide.</p>
+          <form class="msg-form" id="contact-form">
+            <div class="field-row">
+              <div class="field">
+                <label for="cf-name">Name*</label>
+                <input type="text" id="cf-name" name="name" placeholder="Your name here" required>
+              </div>
+              <div class="field">
+                <label for="cf-email">Mail*</label>
+                <input type="email" id="cf-email" name="email" placeholder="Your mail here" required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cf-msg">Message*</label>
+              <textarea id="cf-msg" name="message" placeholder="Write your message..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn" id="cf-submit">Send message</button>
+            <div class="form-status" id="cf-status"></div>
+            <div class="form-note">*You will get replied in your mail.</div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-line"></div>
+  </main>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const indicator = document.getElementById('tab-indicator');
+  const panels = document.querySelectorAll('.panel');
+
+  function moveIndicator(el){
+    indicator.style.width = el.offsetWidth + 'px';
+    indicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+  }
+  tabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabs.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      moveIndicator(btn);
+      panels.forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  window.addEventListener('load', ()=> moveIndicator(document.querySelector('.tab-btn.active')));
+  window.addEventListener('resize', ()=> moveIndicator(document.querySelector('.tab-btn.active')));
+
+  /* custom cursor */
+  const cursorEl = document.getElementById('custom-cursor');
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+  if(finePointer){
+    window.addEventListener('mousemove', e=>{
+      cursorEl.style.left = e.clientX + 'px';
+      cursorEl.style.top = e.clientY + 'px';
+    });
+    window.addEventListener('mousedown', e=>{
+      cursorEl.classList.remove('pop');
+      void cursorEl.offsetWidth;
+      cursorEl.classList.add('pop');
+      setTimeout(()=> cursorEl.classList.remove('pop'), 280);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'click-burst';
+      wrap.style.left = e.clientX + 'px';
+      wrap.style.top = e.clientY + 'px';
+
+      const ring1 = document.createElement('div');
+      ring1.className = 'burst-ring';
+      wrap.appendChild(ring1);
+      const ring2 = document.createElement('div');
+      ring2.className = 'burst-ring ring-2';
+      wrap.appendChild(ring2);
+
+      const sparkCount = 6;
+      for(let i=0;i<sparkCount;i++){
+        const spark = document.createElement('div');
+        spark.className = 'burst-spark';
+        spark.style.setProperty('--rot', (i * (360/sparkCount)) + 'deg');
+        wrap.appendChild(spark);
+      }
+
+      const particleCount = 8;
+      for(let i=0;i<particleCount;i++){
+        const angle = (i / particleCount) * Math.PI * 2 + (Math.random()*0.35 - 0.175);
+        const dist = 24 + Math.random()*28;
+        const p = document.createElement('span');
+        p.className = 'burst-particle';
+        p.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+        p.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+        p.style.setProperty('--delay', Math.round(Math.random()*40) + 'ms');
+        wrap.appendChild(p);
+      }
+
+      document.body.appendChild(wrap);
+      setTimeout(()=> wrap.remove(), 1000);
+    });
+  }
+
+  /* contact form -> discord webhook */
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1529081522597003315/ufnivGM5addaze2skVu84HmLPjzHwp9OvKBvzTqBlCWbzJPmhV6Y81GNF9l8Ms50rEcj";
+  const form = document.getElementById('contact-form');
+  const statusEl = document.getElementById('cf-status');
+  const submitBtn = document.getElementById('cf-submit');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('cf-name').value.trim();
+    const email = document.getElementById('cf-email').value.trim();
+    const message = document.getElementById('cf-msg').value.trim();
+    if(!name || !email || !message) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    statusEl.textContent = '';
+    statusEl.className = 'form-status';
+
+    const payload = {
+      embeds:[{
+        title: 'New portfolio message',
+        color: 15918879,
+        fields:[
+          {name:'Name', value:name, inline:true},
+          {name:'Email', value:email, inline:true},
+          {name:'Message', value:message.slice(0,1000)}
+        ]
+      }]
+    };
+
+    try{
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=UTF-8'},
+        body: JSON.stringify(payload)
+      });
+      if(res.ok || res.status === 204){
+        statusEl.textContent = "Message sent — you'll get a reply by email soon.";
+        statusEl.className = 'form-status ok';
+        form.reset();
+      } else {
+        throw new Error('status ' + res.status);
+      }
+    } catch(err){
+      statusEl.textContent = 'Could not send automatically. Please message on Discord directly.';
+      statusEl.className = 'form-status err';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send message';
+    }
+  });
+</script>
+</body>
+</html>
