@@ -3,7 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Labib Shahriar — Portfolio</title>
+<title>Labib Shahriar | Lemon Hub — Discord Marketplace | astrozex | indiagnito</title>
+<meta name="description" content="Official portfolio of Labib Shahriar — student, entrepreneur, and founder of Lemon Hub, an all-in-one Discord marketplace. Also known online as astrozex and indiagnito.">
+<meta name="keywords" content="Labib Shahriar, Lemon Hub, Emproiumx, astrozex, indiagnito, labib shahriar portfolio, discord marketplace, discord nitro store">
+<meta name="author" content="Labib Shahriar">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Labib Shahriar | Lemon Hub | astrozex | indiagnito">
+<meta property="og:description" content="Official portfolio of Labib Shahriar — student, entrepreneur, and founder of Lemon Hub, an all-in-one Discord marketplace.">
+<meta property="og:image" content="logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Labib Shahriar | Lemon Hub | astrozex | indiagnito">
+<meta name="twitter:description" content="Official portfolio of Labib Shahriar — student, entrepreneur, and founder of Lemon Hub, an all-in-one Discord marketplace.">
+<meta name="twitter:image" content="logo.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Labib Shahriar",
+  "alternateName": ["astrozex", "indiagnito", "Emproiumx"],
+  "sameAs": [
+    "https://www.facebook.com/labibiscool",
+    "https://discord.gg/Y3puTERzfp",
+    "https://www.youtube.com/@real.astrozex",
+    "https://www.youtube.com/@indiagnito",
+    "https://github.com/l4bibshahriar"
+  ],
+  "worksFor": { "@type": "Organization", "name": "Lemon Hub" },
+  "jobTitle": "Student & Entrepreneur"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -421,8 +450,30 @@
   .form-status{font-size:12.5px;min-height:16px;}
   .form-status.ok{color:#8fd18f;}
   .form-status.err{color:#e08585;}
+  .field-hint{font-size:10.5px;color:var(--text-dimmer);margin-top:5px;}
 
   /* ---------- settings dock ---------- */
+  /* ---------- engagement toasts ---------- */
+  .site-toast{
+    position:fixed;left:20px;bottom:20px;z-index:9500;
+    display:flex;align-items:center;gap:12px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 40px 16px 16px;max-width:290px;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+    opacity:0;transform:translateY(16px);pointer-events:none;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .site-toast.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .toast-icon{font-size:22px;flex-shrink:0;}
+  .toast-text{font-size:13px;color:var(--text-dim);line-height:1.4;}
+  .toast-text b{color:var(--yellow);}
+  .toast-close{
+    position:absolute;top:8px;right:8px;width:22px;height:22px;
+    border-radius:6px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--text-dim);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .toast-close:hover{color:var(--yellow);border-color:var(--yellow-dim);}
+
   .dock{position:fixed;right:20px;bottom:20px;z-index:9000;display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
   .dock-toggle{
     width:46px;height:46px;border-radius:50%;
@@ -784,7 +835,8 @@
               </div>
               <div class="field">
                 <label for="cf-email">Mail*</label>
-                <input type="email" id="cf-email" name="email" placeholder="Your mail here" required>
+                <input type="email" id="cf-email" name="email" placeholder="you@gmail.com" required>
+                <div class="field-hint">Gmail, Outlook, or Hotmail only</div>
               </div>
             </div>
             <div class="field">
@@ -833,6 +885,18 @@
 <div class="konami-overlay" id="konami-overlay">
   <canvas id="konami-canvas"></canvas>
   <div class="konami-msg" id="konami-msg">🎉 KONAMI CODE ACTIVATED<br><span>You found the secret, Labib!</span></div>
+</div>
+
+<div class="site-toast" id="toast-25">
+  <button class="toast-close" data-close="toast-25" aria-label="Close">&times;</button>
+  <div class="toast-icon">⏱️</div>
+  <div class="toast-text"><b>WOW!</b> You've spent 25 seconds on this site!</div>
+</div>
+
+<div class="site-toast" id="toast-60">
+  <button class="toast-close" data-close="toast-60" aria-label="Close">&times;</button>
+  <div class="toast-icon">🔥</div>
+  <div class="toast-text"><b>Nice!</b> You've passed 1 minute on this site!</div>
 </div>
 
 <script>
@@ -908,10 +972,17 @@
   }
 
   /* contact form -> discord webhook */
-  const WEBHOOK_URL = "https://discord.com/api/webhooks/1529081522597003315/ufnivGM5addaze2skVu84HmLPjzHwp9OvKBvzTqBlCWbzJPmhV6Y81GNF9l8Ms50rEcj";
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1530586222831997131/PW_r3YD-qCeR142_r9bbTChPPEiBmNR85Z080aTSnsKUzqlBjwVewe5y5GthbP0FEV4T";
+  const ALLOWED_EMAIL_DOMAINS = ['gmail.com', 'outlook.com', 'hotmail.com'];
   const form = document.getElementById('contact-form');
   const statusEl = document.getElementById('cf-status');
   const submitBtn = document.getElementById('cf-submit');
+  const emailInput = document.getElementById('cf-email');
+
+  function isAllowedEmail(value){
+    const v = value.trim().toLowerCase();
+    return ALLOWED_EMAIL_DOMAINS.some(domain => v.endsWith('@' + domain));
+  }
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -919,6 +990,13 @@
     const email = document.getElementById('cf-email').value.trim();
     const message = document.getElementById('cf-msg').value.trim();
     if(!name || !email || !message) return;
+
+    if(!isAllowedEmail(email)){
+      statusEl.textContent = 'Please use a Gmail, Outlook, or Hotmail address.';
+      statusEl.className = 'form-status err';
+      emailInput.focus();
+      return;
+    }
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
@@ -1132,6 +1210,17 @@
   konamiOverlay.addEventListener('click', ()=>{
     konamiOverlay.classList.remove('show');
     konamiRunning = false;
+  });
+
+  /* ================= engagement toasts ================= */
+  const toast25 = document.getElementById('toast-25');
+  const toast60 = document.getElementById('toast-60');
+  setTimeout(()=> toast25.classList.add('show'), 25000);
+  setTimeout(()=> toast60.classList.add('show'), 60000);
+  document.querySelectorAll('.toast-close').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.getElementById(btn.dataset.close).classList.remove('show');
+    });
   });
 </script>
 </body>
