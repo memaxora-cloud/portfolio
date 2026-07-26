@@ -1016,19 +1016,25 @@
     };
 
     try{
+      const body = new FormData();
+      body.append('payload_json', JSON.stringify(payload));
+
       const res = await fetch(WEBHOOK_URL, {
         method: 'POST',
-        headers: {'Content-Type':'text/plain;charset=UTF-8'},
-        body: JSON.stringify(payload)
+        body: body
       });
+
       if(res.ok || res.status === 204){
         statusEl.textContent = "Message sent — you'll get a reply by email soon.";
         statusEl.className = 'form-status ok';
         form.reset();
       } else {
+        const errText = await res.text().catch(()=>'(no response body)');
+        console.error('Discord webhook error', res.status, errText);
         throw new Error('status ' + res.status);
       }
     } catch(err){
+      console.error('Contact form send failed:', err);
       statusEl.textContent = 'Could not send automatically. Please message on Discord directly.';
       statusEl.className = 'form-status err';
     } finally {
