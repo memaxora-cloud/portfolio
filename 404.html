@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting…</title>
+  <script>
+    // GitHub Pages has no server-side rewrites, so a direct visit or a
+    // middle-click-opened new tab to e.g. /about lands here first. Stash
+    // the intended path and bounce to the real index.html, which restores
+    // it (see the small script at the top of index.html's <head>).
+    sessionStorage.setItem('spa-redirect', location.pathname + location.search + location.hash);
+    location.replace('/');
+  </script>
+</head>
+<body></body>
+</html>
