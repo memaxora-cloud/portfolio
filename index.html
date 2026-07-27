@@ -403,26 +403,67 @@
   .biz-cta:hover{transform:translateY(-1px);}
 
   /* ---------- blogs ---------- */
+  .blog-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+  .ghost-btn{
+    font-family:'Sora',sans-serif;font-weight:600;font-size:13px;
+    background:none;border:1px solid var(--line);color:var(--text-dim);
+    padding:11px 18px;border-radius:9px;transition:.2s ease;
+  }
+  .ghost-btn:hover{border-color:var(--yellow-dim);color:var(--yellow);}
   .blog-list{display:flex;flex-direction:column;gap:16px;}
   .blog-empty{
     border:1px dashed var(--line);border-radius:var(--radius);padding:36px 24px;
     text-align:center;color:var(--text-dim);background:var(--panel-2);font-size:13.5px;
   }
   .blog-card{
+    position:relative;
     background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent,var(--yellow));
     border-radius:12px;padding:18px 20px;
   }
-  .blog-author{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .blog-author{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-right:30px;}
   .blog-avatar{
     width:26px;height:26px;border-radius:50%;overflow:hidden;background:var(--panel);
     border:1px solid var(--line);flex-shrink:0;
   }
   .blog-avatar img{width:100%;height:100%;object-fit:cover;}
   .blog-author span{font-family:'Sora',sans-serif;font-weight:600;font-size:13px;color:var(--text);}
+  .blog-source-tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-dimmer);}
   .blog-title{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px;}
-  .blog-desc{font-size:13.5px;color:var(--text-dim);line-height:1.65;white-space:pre-wrap;}
-  .blog-image{width:100%;max-height:320px;object-fit:cover;border-radius:8px;margin-top:12px;border:1px solid var(--line);}
+  .blog-desc{font-size:13.5px;color:var(--text-dim);line-height:1.65;}
+  .blog-desc p{margin-bottom:12px;}
+  .blog-desc p:last-child{margin-bottom:0;}
+  .blog-image{width:100%;max-height:320px;object-fit:cover;border-radius:8px;margin:10px 0;border:1px solid var(--line);}
   .blog-footer{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dimmer);}
+  .blog-delete-btn{
+    position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:7px;
+    border:1px solid var(--line);background:var(--panel);color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;font-size:13px;transition:.2s ease;
+  }
+  .blog-delete-btn:hover{color:#ff5c5c;border-color:#ff5c5c;}
+
+  /* ---------- modals ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:20000;display:none;
+    align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:28px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;
+    position:relative;box-shadow:0 20px 50px rgba(0,0,0,.5);
+    animation:fade-in .25s ease;
+  }
+  .modal-box-sm{max-width:380px;}
+  .modal-close{
+    position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  .modal-close:hover{color:var(--yellow);border-color:var(--yellow-dim);}
+  .modal-box h3{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;margin-bottom:14px;padding-right:30px;}
+  .modal-note{font-size:12.5px;color:var(--text-dim);margin-bottom:16px;line-height:1.5;}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .submit-btn.danger{background:#e05353;color:#fff;}
 
   /* ---------- projects ---------- */
   .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -869,6 +910,12 @@
       <div class="eyebrow">Journal</div>
       <h2 class="section-title">Blogs</h2>
       <div class="rule"></div>
+
+      <div class="blog-toolbar">
+        <button class="submit-btn" id="open-blog-composer">+ Write a blog</button>
+        <button class="ghost-btn" id="download-blogs-json">Download blogs.json</button>
+      </div>
+
       <div id="blog-list" class="blog-list">
         <div class="blog-empty">Loading posts…</div>
       </div>
@@ -966,6 +1013,66 @@
   <button class="toast-close" data-close="toast-60" aria-label="Close">&times;</button>
   <div class="toast-icon">🔥</div>
   <div class="toast-text"><b>Nice!</b> You've passed 1 minute on this site!</div>
+</div>
+
+<div class="modal-overlay" id="blog-modal">
+  <div class="modal-box">
+    <button class="modal-close" id="blog-modal-close" aria-label="Close">&times;</button>
+
+    <div id="blog-modal-step-compose">
+      <h3>Write a new blog post</h3>
+      <div class="field-row">
+        <div class="field">
+          <label for="bp-name">User Name*</label>
+          <input type="text" id="bp-name" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label for="bp-email">User Email*</label>
+          <input type="email" id="bp-email" placeholder="your@email.com">
+        </div>
+      </div>
+      <div class="field">
+        <label for="bp-title">Title*</label>
+        <input type="text" id="bp-title" placeholder="The blog's title">
+      </div>
+      <div class="field">
+        <label for="bp-desc">Description*</label>
+        <textarea id="bp-desc" rows="9" placeholder="Write your post here. Leave a blank line between paragraphs. Paste an Imgur link on its own line (e.g. https://i.imgur.com/xxxx.jpg) to embed an image right there."></textarea>
+      </div>
+      <button class="submit-btn" id="bp-continue">Continue to publish →</button>
+    </div>
+
+    <div id="blog-modal-step-password" style="display:none;">
+      <h3>Enter publish password</h3>
+      <p class="modal-note">A password is required to publish new posts.</p>
+      <div class="field">
+        <label for="bp-password">Password*</label>
+        <input type="password" id="bp-password" placeholder="••••••••">
+      </div>
+      <div class="modal-actions">
+        <button class="submit-btn" id="bp-publish">Publish</button>
+        <button class="ghost-btn" id="bp-back">← Back</button>
+      </div>
+      <div class="form-status" id="bp-status"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" id="delete-modal-close" aria-label="Close">&times;</button>
+    <h3>Delete this post?</h3>
+    <p class="modal-note">Enter the publish password to confirm deletion. This can't be undone.</p>
+    <div class="field">
+      <label for="del-password">Password*</label>
+      <input type="password" id="del-password" placeholder="••••••••">
+    </div>
+    <div class="modal-actions">
+      <button class="submit-btn danger" id="del-confirm">Delete post</button>
+      <button class="ghost-btn" id="del-cancel">Cancel</button>
+    </div>
+    <div class="form-status" id="del-status"></div>
+  </div>
 </div>
 
 <script>
@@ -1324,13 +1431,15 @@
   });
 
   /* ================= blogs ================= */
-  // Manual fallback posts — add entries here any time you post one via
-  // Discohook if you haven't set up the blogs.json automation (see notes).
-  // Example shape:
-  // { author:'Labib Shahriar', avatar:'logo.png', title:'My first post',
-  //   description:'Post content here...', color:'#f2bf1f',
-  //   timestamp:'2026-07-27', image:null }
-  const blogPosts = [];
+  const PUBLISH_PASSWORD = 'passlagena';
+  const LOCAL_POSTS_KEY = 'labib-blog-posts';
+  let localPosts = [];
+  try{ localPosts = JSON.parse(localStorage.getItem(LOCAL_POSTS_KEY) || '[]'); }catch(e){ localPosts = []; }
+  let allPosts = [];
+
+  function saveLocalPosts(){
+    try{ localStorage.setItem(LOCAL_POSTS_KEY, JSON.stringify(localPosts)); }catch(e){}
+  }
 
   function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
@@ -1339,6 +1448,38 @@
     try{ return new Date(ts).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
     catch(e){ return ts; }
   }
+
+  // Splits the description into paragraphs (blank line = new paragraph,
+  // single newline = line break) and turns any line that's just an Imgur
+  // link into an inline <img>, wherever it falls in the text.
+  const imgurLineRe = /^(https?:\/\/(?:i\.)?imgur\.com\/[A-Za-z0-9]+(?:\.(?:png|jpe?g|gif|webp))?)$/i;
+  function renderDescription(desc){
+    const lines = String(desc || '').split(/\r?\n/);
+    let html = '';
+    let para = [];
+    function flush(){
+      if(para.length){
+        html += '<p>' + para.map(escapeHtml).join('<br>') + '</p>';
+        para = [];
+      }
+    }
+    lines.forEach(line=>{
+      const trimmed = line.trim();
+      if(imgurLineRe.test(trimmed)){
+        flush();
+        let src = trimmed;
+        if(!/\.(png|jpe?g|gif|webp)$/i.test(src)) src = src.replace('imgur.com','i.imgur.com') + '.jpg';
+        html += `<img class="blog-image" src="${src}" alt="" loading="lazy">`;
+      } else if(trimmed === ''){
+        flush();
+      } else {
+        para.push(line);
+      }
+    });
+    flush();
+    return html;
+  }
+
   function renderBlogs(posts){
     const wrap = document.getElementById('blog-list');
     if(!posts || !posts.length){
@@ -1346,33 +1487,137 @@
       return;
     }
     wrap.innerHTML = posts.map(p => `
-      <div class="blog-card" style="--accent:${p.color || '#f2bf1f'}">
+      <div class="blog-card" style="--accent:${p.color || '#f2bf1f'}" data-id="${p.__id}">
+        ${p.__source === 'local' ? `<button class="blog-delete-btn" data-delete-id="${p.__id}" aria-label="Delete post">&times;</button>` : ''}
         <div class="blog-author">
           <div class="blog-avatar"><img src="${p.avatar || 'logo.png'}" alt="" onerror="this.style.display='none'"></div>
           <span>${escapeHtml(p.author || 'Labib Shahriar')}</span>
+          ${p.__source === 'local' ? '<span class="blog-source-tag">· saved on this device</span>' : ''}
         </div>
         ${p.title ? `<div class="blog-title">${escapeHtml(p.title)}</div>` : ''}
-        ${p.description ? `<div class="blog-desc">${escapeHtml(p.description)}</div>` : ''}
-        ${p.image ? `<img class="blog-image" src="${p.image}" alt="">` : ''}
+        ${p.description ? `<div class="blog-desc">${renderDescription(p.description)}</div>` : ''}
         ${p.timestamp ? `<div class="blog-footer">${formatDate(p.timestamp)}</div>` : ''}
       </div>
     `).join('');
+
+    wrap.querySelectorAll('[data-delete-id]').forEach(btn=>{
+      btn.addEventListener('click', ()=> openDeleteModal(btn.dataset.deleteId));
+    });
   }
+
   async function loadBlogs(){
-    let posts = blogPosts.slice();
+    let remote = [];
     try{
-      // If a blogs.json file exists next to this page (e.g. written by an
-      // automation that watches your Discord channel), it takes priority
-      // over the manual list above.
+      // If blogs.json exists next to this page (e.g. an automation that
+      // watches your Discord channel writes to it), those posts show too.
       const res = await fetch('blogs.json', {cache:'no-store'});
       if(res.ok){
         const data = await res.json();
-        if(Array.isArray(data) && data.length) posts = data;
+        if(Array.isArray(data)) remote = data.map((p,i)=>({...p, __id:'remote-'+i, __source:'remote'}));
       }
-    }catch(e){ /* no blogs.json yet — that's fine, use the manual list */ }
-    renderBlogs(posts);
+    }catch(e){ /* no blogs.json yet — that's fine */ }
+    const local = localPosts.map(p=>({...p, __id:p.id, __source:'local'}));
+    allPosts = [...local, ...remote].sort((a,b)=> new Date(b.timestamp||0) - new Date(a.timestamp||0));
+    renderBlogs(allPosts);
   }
   loadBlogs();
+
+  /* ---- composer modal ---- */
+  const blogModal = document.getElementById('blog-modal');
+  const stepCompose = document.getElementById('blog-modal-step-compose');
+  const stepPassword = document.getElementById('blog-modal-step-password');
+
+  function closeBlogModal(){ blogModal.classList.remove('show'); }
+  function openBlogModal(){
+    stepCompose.style.display = 'block';
+    stepPassword.style.display = 'none';
+    blogModal.classList.add('show');
+  }
+  document.getElementById('open-blog-composer').addEventListener('click', openBlogModal);
+  document.getElementById('blog-modal-close').addEventListener('click', closeBlogModal);
+  blogModal.addEventListener('click', (e)=>{ if(e.target === blogModal) closeBlogModal(); });
+
+  document.getElementById('bp-continue').addEventListener('click', ()=>{
+    const name = document.getElementById('bp-name').value.trim();
+    const email = document.getElementById('bp-email').value.trim();
+    const title = document.getElementById('bp-title').value.trim();
+    const desc = document.getElementById('bp-desc').value;
+    if(!name || !email || !title || !desc.trim()){
+      alert('Please fill in name, email, title, and description first.');
+      return;
+    }
+    stepCompose.style.display = 'none';
+    stepPassword.style.display = 'block';
+    const pwField = document.getElementById('bp-password');
+    pwField.value = '';
+    document.getElementById('bp-status').textContent = '';
+    pwField.focus();
+  });
+  document.getElementById('bp-back').addEventListener('click', ()=>{
+    stepPassword.style.display = 'none';
+    stepCompose.style.display = 'block';
+  });
+  document.getElementById('bp-publish').addEventListener('click', ()=>{
+    const pass = document.getElementById('bp-password').value;
+    const statusEl = document.getElementById('bp-status');
+    if(pass !== PUBLISH_PASSWORD){
+      statusEl.textContent = 'Incorrect password.';
+      statusEl.className = 'form-status err';
+      return;
+    }
+    const post = {
+      id: 'p_' + Date.now(),
+      author: document.getElementById('bp-name').value.trim(),
+      email: document.getElementById('bp-email').value.trim(),
+      title: document.getElementById('bp-title').value.trim(),
+      description: document.getElementById('bp-desc').value,
+      avatar: 'logo.png',
+      color: '#f2bf1f',
+      timestamp: new Date().toISOString()
+    };
+    localPosts.unshift(post);
+    saveLocalPosts();
+    ['bp-name','bp-email','bp-title','bp-desc'].forEach(id=> document.getElementById(id).value = '');
+    closeBlogModal();
+    loadBlogs();
+  });
+
+  /* ---- delete modal ---- */
+  const deleteModal = document.getElementById('delete-modal');
+  let pendingDeleteId = null;
+  function openDeleteModal(id){
+    pendingDeleteId = id;
+    document.getElementById('del-password').value = '';
+    document.getElementById('del-status').textContent = '';
+    deleteModal.classList.add('show');
+  }
+  document.getElementById('delete-modal-close').addEventListener('click', ()=> deleteModal.classList.remove('show'));
+  document.getElementById('del-cancel').addEventListener('click', ()=> deleteModal.classList.remove('show'));
+  deleteModal.addEventListener('click', (e)=>{ if(e.target === deleteModal) deleteModal.classList.remove('show'); });
+  document.getElementById('del-confirm').addEventListener('click', ()=>{
+    const pass = document.getElementById('del-password').value;
+    const statusEl = document.getElementById('del-status');
+    if(pass !== PUBLISH_PASSWORD){
+      statusEl.textContent = 'Incorrect password.';
+      statusEl.className = 'form-status err';
+      return;
+    }
+    localPosts = localPosts.filter(p=> p.id !== pendingDeleteId);
+    saveLocalPosts();
+    deleteModal.classList.remove('show');
+    loadBlogs();
+  });
+
+  /* ---- export blogs.json for committing to the repo ---- */
+  document.getElementById('download-blogs-json').addEventListener('click', ()=>{
+    const exportPosts = allPosts.map(({__id, __source, ...rest}) => rest);
+    const blob = new Blob([JSON.stringify(exportPosts, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'blogs.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
 </script>
 </body>
 </html>
