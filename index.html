@@ -48,6 +48,10 @@
 </head>
 <body>
 
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
 <div class="bg-glow"></div>
 <div class="dots-field" id="dotsField"></div>
 
@@ -86,6 +90,20 @@
       </div>
       <button class="profile-name-btn" type="button">I'm Labib Shahriar</button>
       <p class="tagline">Building things, breaking things, learning things.</p>
+      <div class="mini-stats">
+        <span class="mini-stat">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+          <span id="viewsCount" class="mini-stat-value">920</span> Views
+        </span>
+        <span class="mini-stat">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span id="msgCount" class="mini-stat-value">98</span> MSG Sent
+        </span>
+        <span class="mini-stat">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.8 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.8-3.8-9s1.3-6.5 3.8-9z" stroke="currentColor" stroke-width="1.8"/></svg>
+          Top Country: <span class="mini-stat-value">Bangladesh</span>
+        </span>
+      </div>
     </section>
 
     <!-- 2. Title card -->
@@ -360,6 +378,11 @@
 
 </div>
 
+<div class="mascot" id="mascot">
+  <div class="mascot-bubble" id="mascotBubble">Hello! 👋</div>
+  <img src="mascot.png" alt="Mascot" draggable="false" />
+</div>
+
 <script>
   /* ---------------- Mobile nav toggle ---------------- */
   const navToggle = document.getElementById('navToggle');
@@ -389,7 +412,109 @@
     dotsField.appendChild(dot);
   }
 
-  /* ---------------- Click-to-copy game tags ---------------- */
+  /* ---------------- Scroll progress bar ---------------- */
+  const scrollProgress = document.getElementById('scrollProgress');
+  function updateScrollProgress() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+    scrollProgress.style.width = pct + '%';
+  }
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(() => { updateScrollProgress(); scrollTicking = false; });
+      scrollTicking = true;
+    }
+  });
+  updateScrollProgress();
+
+  /* ---------------- Custom cursor ---------------- */
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const cursorDot = document.getElementById('cursorDot');
+  const cursorRing = document.getElementById('cursorRing');
+
+  if (isFinePointer && !prefersReducedMotion) {
+    document.body.classList.add('has-custom-cursor');
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      cursorDot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+    });
+
+    (function ringLoop() {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      cursorRing.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      requestAnimationFrame(ringLoop);
+    })();
+
+    document.addEventListener('mousedown', () => cursorRing.classList.add('clicking'));
+    document.addEventListener('mouseup', () => cursorRing.classList.remove('clicking'));
+
+    const hoverSelector = 'a, button, input, textarea, .copy-tag, .mascot';
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest(hoverSelector)) cursorRing.classList.add('hovering');
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest(hoverSelector)) cursorRing.classList.remove('hovering');
+    });
+  }
+
+  /* ---------------- Card tilt + spotlight (mouse-reactive) ---------------- */
+  if (isFinePointer && !prefersReducedMotion) {
+    document.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mx', (x / rect.width) * 100 + '%');
+        card.style.setProperty('--my', (y / rect.height) * 100 + '%');
+        const rotateX = ((y / rect.height) - 0.5) * -5;
+        const rotateY = ((x / rect.width) - 0.5) * 5;
+        card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
+        card.classList.add('tilt-active');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.classList.remove('tilt-active');
+      });
+    });
+
+    /* ---------------- Magnetic icon buttons ---------------- */
+    document.querySelectorAll('.icon-btn, .arrow-circle, .profile-icons a').forEach((el) => {
+      el.style.transition = 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const relX = e.clientX - rect.left - rect.width / 2;
+        const relY = e.clientY - rect.top - rect.height / 2;
+        el.style.transform = `translate(${relX / 3.5}px, ${relY / 3.5}px)`;
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = '';
+      });
+    });
+  }
+
+  /* ---------------- Views / MSG mini stat counters ---------------- */
+  function bumpStat(key, base, el) {
+    if (!el) return;
+    const storeKey = 'labib_stat_' + key;
+    let val = Number(localStorage.getItem(storeKey));
+    if (!val || isNaN(val)) val = 0;
+    val += 1;
+    localStorage.setItem(storeKey, String(val));
+    el.textContent = (base + val).toLocaleString();
+  }
+  const viewsCountEl = document.getElementById('viewsCount');
+  const msgCountEl = document.getElementById('msgCount');
+  bumpStat('views', 920, viewsCountEl);
+  window.bumpMsgStat = () => bumpStat('msgs', 98, msgCountEl);
+
+
   document.querySelectorAll('.copy-tag').forEach((btn) => {
     const label = btn.querySelector('.copy-text');
     const original = label.textContent;
@@ -568,6 +693,7 @@
 
       if (res.ok || res.status === 204) {
         localStorage.setItem(RATE_KEY, String(now));
+        if (window.bumpMsgStat) window.bumpMsgStat();
         setStatus('Message sent! Labib will reply via email.', true);
         form.reset();
         charCount.textContent = '0';
@@ -583,6 +709,261 @@
       submitBtn.textContent = 'Send Message';
     }
   });
+
+  /* ==================================================================== */
+  /* Mascot mini-game                                                      */
+  /* ==================================================================== */
+  if (!prefersReducedMotion) {
+    (function mascotGame() {
+      const mascotEl = document.getElementById('mascot');
+      const bubbleEl = document.getElementById('mascotBubble');
+      if (!mascotEl) return;
+
+      let userTookControl = false;
+
+      function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+      function setPos(x, y) {
+        mascotEl.style.left = x + 'px';
+        mascotEl.style.top = y + 'px';
+      }
+      function groundY() {
+        return window.innerHeight - mascotEl.offsetHeight - 22;
+      }
+      function centerX() {
+        return window.innerWidth / 2 - mascotEl.offsetWidth / 2;
+      }
+      function animateTo(x, y, duration, easing) {
+        return new Promise((resolve) => {
+          mascotEl.style.transition = `left ${duration}ms ${easing}, top ${duration}ms ${easing}`;
+          void mascotEl.offsetWidth; // force reflow so transition applies
+          mascotEl.style.left = x + 'px';
+          mascotEl.style.top = y + 'px';
+          setTimeout(resolve, duration);
+        });
+      }
+      function showBubble(text) {
+        bubbleEl.textContent = text;
+        bubbleEl.classList.add('show');
+      }
+      function hideBubble() {
+        bubbleEl.classList.remove('show');
+      }
+
+      async function peekFromSide(side) {
+        if (userTookControl) return;
+        const w = mascotEl.offsetWidth;
+        const h = mascotEl.offsetHeight;
+        let startX, peekX, startY, peekY;
+
+        if (side === 'right') {
+          startY = peekY = window.innerHeight / 2 - h / 2;
+          startX = window.innerWidth - w * 0.32;
+          peekX = window.innerWidth - w * 0.78;
+        } else if (side === 'left') {
+          startY = peekY = window.innerHeight / 2 - h / 2;
+          startX = -w * 0.68;
+          peekX = -w * 0.22;
+        } else {
+          startX = peekX = centerX();
+          startY = window.innerHeight - h * 0.22;
+          peekY = window.innerHeight - h * 0.78;
+        }
+
+        mascotEl.style.transition = 'none';
+        setPos(startX, startY);
+        mascotEl.classList.add('visible');
+        void mascotEl.offsetWidth;
+        await animateTo(peekX, peekY, 480, 'ease-out');
+        if (userTookControl) return;
+        await wait(3000);
+        if (userTookControl) return;
+        await animateTo(startX, startY, 420, 'ease-in');
+        mascotEl.classList.remove('visible');
+      }
+
+      async function fallFromTop() {
+        if (userTookControl) return;
+        const x = 40 + Math.random() * (window.innerWidth - mascotEl.offsetWidth - 80);
+        const startY = -mascotEl.offsetHeight - 30;
+        mascotEl.style.transition = 'none';
+        setPos(x, startY);
+        mascotEl.classList.add('visible');
+        void mascotEl.offsetWidth;
+        await animateTo(x, groundY(), 850, 'cubic-bezier(0.55,0,1,0.45)');
+        if (userTookControl) return;
+        mascotEl.classList.add('landing');
+        await wait(420);
+        mascotEl.classList.remove('landing');
+      }
+
+      async function runIntro() {
+        await wait(2000);
+        if (userTookControl) return;
+
+        const gY = groundY();
+        mascotEl.style.transition = 'none';
+        setPos(-140, gY);
+        mascotEl.classList.add('visible', 'walking');
+        void mascotEl.offsetWidth;
+
+        await animateTo(centerX(), gY, 1500, 'ease-out');
+        if (userTookControl) return;
+
+        mascotEl.classList.remove('walking');
+        mascotEl.classList.add('greeting');
+        showBubble('Hello! 👋');
+        await wait(1300);
+        hideBubble();
+        mascotEl.classList.remove('greeting');
+        if (userTookControl) return;
+
+        mascotEl.classList.add('walking');
+        await animateTo(window.innerWidth + 80, gY, 850, 'ease-in');
+        mascotEl.classList.remove('walking', 'visible');
+        if (userTookControl) return;
+
+        await wait(2000);
+        await peekFromSide('right');
+        if (userTookControl) return;
+        await wait(2000);
+        await peekFromSide('left');
+        if (userTookControl) return;
+        await wait(2000);
+        await peekFromSide('bottom');
+        if (userTookControl) return;
+
+        await wait(1400);
+        await fallFromTop();
+        if (userTookControl) return;
+
+        mascotEl.classList.add('idle-breathe');
+      }
+
+      /* ---- Drag, click-poke, and throw physics ---- */
+      let dragging = false;
+      let offsetX = 0, offsetY = 0;
+      let moved = false;
+      let track = [];
+      let throwFrame = null;
+
+      mascotEl.addEventListener('pointerdown', (e) => {
+        userTookControl = true;
+        if (throwFrame) cancelAnimationFrame(throwFrame);
+        dragging = true;
+        moved = false;
+        mascotEl.setPointerCapture(e.pointerId);
+        mascotEl.classList.add('dragging');
+        mascotEl.classList.remove('idle-breathe', 'walking', 'greeting', 'landing');
+        mascotEl.classList.add('visible');
+        mascotEl.style.transform = '';
+        mascotEl.style.transition = 'none';
+        const rect = mascotEl.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        track = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        moved = true;
+        setPos(e.clientX - offsetX, e.clientY - offsetY);
+        track.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+        if (track.length > 6) track.shift();
+      });
+
+      window.addEventListener('pointerup', () => {
+        if (!dragging) return;
+        dragging = false;
+        mascotEl.classList.remove('dragging');
+
+        if (!moved) {
+          mascotEl.classList.add('poked');
+          setTimeout(() => {
+            mascotEl.classList.remove('poked');
+            mascotEl.classList.add('idle-breathe');
+          }, 750);
+          return;
+        }
+
+        const first = track[0];
+        const last = track[track.length - 1];
+        const dt = Math.max(last.t - first.t, 1);
+        const vx = (last.x - first.x) / dt;
+        const vy = (last.y - first.y) / dt;
+        const speed = Math.hypot(vx, vy);
+
+        if (speed > 0.55) {
+          throwMascot(vx, vy);
+        } else {
+          mascotEl.classList.add('landing');
+          setTimeout(() => {
+            mascotEl.classList.remove('landing');
+            mascotEl.classList.add('idle-breathe');
+          }, 420);
+        }
+      });
+
+      function throwMascot(vx, vy) {
+        mascotEl.classList.remove('idle-breathe');
+        let posX = parseFloat(mascotEl.style.left) || 0;
+        let posY = parseFloat(mascotEl.style.top) || 0;
+        let vX = vx * 15;
+        let vY = vy * 15;
+        const gravity = 1.05;
+        const friction = 0.992;
+
+        function frame() {
+          vY += gravity;
+          vX *= friction;
+          posX += vX;
+          posY += vY;
+          const ground = groundY();
+
+          if (posY > ground) {
+            posY = ground;
+            vY *= -0.42;
+            if (Math.abs(vY) < 2.2) vY = 0;
+          }
+
+          setPos(posX, posY);
+          const tilt = Math.min(Math.max(vX * 3.5, -65), 65);
+          mascotEl.style.transform = `rotate(${tilt}deg)`;
+
+          if (posX < -mascotEl.offsetWidth - 60 || posX > window.innerWidth + 60) {
+            mascotEl.classList.remove('visible');
+            mascotEl.style.transform = '';
+            setTimeout(respawn, 1000);
+            return;
+          }
+
+          if (Math.abs(vX) > 0.04 || Math.abs(vY) > 0.4 || posY < ground - 1) {
+            throwFrame = requestAnimationFrame(frame);
+          } else {
+            mascotEl.style.transform = '';
+            mascotEl.classList.add('landing');
+            setTimeout(() => {
+              mascotEl.classList.remove('landing');
+              mascotEl.classList.add('idle-breathe');
+            }, 420);
+          }
+        }
+        throwFrame = requestAnimationFrame(frame);
+      }
+
+      async function respawn() {
+        const gY = groundY();
+        mascotEl.style.transition = 'none';
+        setPos(-140, gY);
+        mascotEl.classList.add('visible', 'walking');
+        void mascotEl.offsetWidth;
+        await animateTo(centerX(), gY, 1100, 'ease-out');
+        mascotEl.classList.remove('walking');
+        mascotEl.classList.add('idle-breathe');
+      }
+
+      runIntro();
+    })();
+  }
 </script>
 
 </body>
