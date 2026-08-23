@@ -66,6 +66,8 @@
       <a href="#home">About</a>
       <a href="#study">Study</a>
       <a href="#games">Games</a>
+      <a href="library.html">Library</a>
+      <a href="fun.html">Fun Zone</a>
       <a href="#contact">Contact</a>
     </nav>
 
@@ -322,6 +324,34 @@
 
   </main>
 
+  <!-- ============ LIBRARY CTA ============ -->
+  <section class="card cta-banner">
+    <p class="card-label">Photo Album</p>
+    <h2 class="card-heading" style="font-size:1.3rem;">A peek into my library</h2>
+    <a class="cta-btn" href="library.html">Enter Library <span aria-hidden="true">→</span></a>
+  </section>
+
+  <!-- ============ FUN ZONE ============ -->
+  <section class="card cta-banner">
+    <p class="card-label">Fun Zone</p>
+    <h2 class="card-heading" style="font-size:1.3rem;">Take a break, play a little</h2>
+    <div class="funzone-preview">
+      <div class="funzone-preview-item">
+        <span class="fz-icon">⭕</span>
+        <span class="fz-name">Tic Tac Toe</span>
+      </div>
+      <div class="funzone-preview-item">
+        <span class="fz-icon">🍋</span>
+        <span class="fz-name">Lemon Tetris</span>
+      </div>
+      <div class="funzone-preview-item">
+        <span class="fz-icon">🏓</span>
+        <span class="fz-name">Pong vs AI</span>
+      </div>
+    </div>
+    <a class="cta-btn" href="fun.html">Enter The Fun Zone <span aria-hidden="true">→</span></a>
+  </section>
+
   <!-- ============ 10. CONTACT ============ -->
   <section class="card contact-card" id="contact">
     <p class="card-label">Get In Touch</p>
@@ -499,20 +529,43 @@
     });
   }
 
-  /* ---------------- Views / MSG mini stat counters ---------------- */
-  function bumpStat(key, base, el) {
+  /* ---------------- Views / MSG live stat counters (CounterAPI v2) ---------------- */
+  /* These are REAL shared counters — every visitor on every device increments the
+     same remote number, so the figure shown is identical everywhere, live.
+     Workspace/counter is public and keyless. If the network call fails (offline,
+     ad-blocker, API hiccup) we fall back to a local per-device count so the UI
+     never breaks — but the fallback is clearly a lesser, non-synced substitute. */
+  const COUNTER_WORKSPACE = 'labibfun-portfolio';
+
+  async function liveStat(counterName, base, el) {
     if (!el) return;
-    const storeKey = 'labib_stat_' + key;
-    let val = Number(localStorage.getItem(storeKey));
-    if (!val || isNaN(val)) val = 0;
-    val += 1;
-    localStorage.setItem(storeKey, String(val));
-    el.textContent = (base + val).toLocaleString();
+    const fallback = () => {
+      const storeKey = 'labib_stat_fallback_' + counterName;
+      let val = Number(localStorage.getItem(storeKey));
+      if (!val || isNaN(val)) val = 0;
+      val += 1;
+      localStorage.setItem(storeKey, String(val));
+      el.textContent = (base + val).toLocaleString();
+    };
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}/up`, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const upCount = data && data.data && typeof data.data.up_count === 'number' ? data.data.up_count : null;
+      if (upCount === null) throw new Error('unexpected shape');
+      el.textContent = (base + upCount).toLocaleString();
+    } catch (err) {
+      fallback();
+    }
   }
+
   const viewsCountEl = document.getElementById('viewsCount');
   const msgCountEl = document.getElementById('msgCount');
-  bumpStat('views', 920, viewsCountEl);
-  window.bumpMsgStat = () => bumpStat('msgs', 98, msgCountEl);
+  liveStat('views', 920, viewsCountEl);
+  window.bumpMsgStat = () => liveStat('msgs', 98, msgCountEl);
 
 
   document.querySelectorAll('.copy-tag').forEach((btn) => {
@@ -711,7 +764,109 @@
   });
 
   /* ==================================================================== */
-  /* Mascot mini-game                                                      */
+  /* Easter eggs                                                           */
+  /* ==================================================================== */
+
+  /* ---- Triple-click anywhere: confetti burst ---- */
+  document.addEventListener('click', (e) => {
+    if (e.detail === 3) triggerConfetti();
+  });
+
+  function triggerConfetti() {
+    const colors = ['#ff2d3e', '#ff6b57', '#ffd166', '#4ade80', '#60a5fa', '#c084fc'];
+    for (let i = 0; i < 90; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = (2.4 + Math.random() * 2) + 's';
+      piece.style.animationDelay = (Math.random() * 0.4) + 's';
+      piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 5200);
+    }
+  }
+
+  /* ---- Konami code: ↑ ↑ ↓ ↓ ← → ← → B A -> Matrix rain toggle ---- */
+  const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  let konamiPos = 0;
+  let matrixActive = false;
+  let matrixCanvas = null, matrixCtx = null, matrixInterval = null;
+
+  document.addEventListener('keydown', (e) => {
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (key === KONAMI[konamiPos]) {
+      konamiPos++;
+      if (konamiPos === KONAMI.length) {
+        konamiPos = 0;
+        toggleMatrix();
+      }
+    } else {
+      konamiPos = key === KONAMI[0] ? 1 : 0;
+    }
+  });
+
+  function resizeMatrix() {
+    if (!matrixCanvas) return;
+    matrixCanvas.width = window.innerWidth;
+    matrixCanvas.height = window.innerHeight;
+  }
+
+  function toggleMatrix() {
+    matrixActive = !matrixActive;
+    if (matrixActive) {
+      matrixCanvas = document.createElement('canvas');
+      matrixCanvas.id = 'matrixCanvas';
+      matrixCanvas.style.cssText = 'position:fixed;inset:0;z-index:9990;pointer-events:none;';
+      document.body.appendChild(matrixCanvas);
+      resizeMatrix();
+      window.addEventListener('resize', resizeMatrix);
+      matrixCtx = matrixCanvas.getContext('2d');
+      const glyphs = 'アイウエオカキクケコサシスセソ0123456789LABIBSHAHRIARCODIUM'.split('');
+      const fontSize = 16;
+      let columns = Math.floor(matrixCanvas.width / fontSize);
+      let drops = new Array(columns).fill(1);
+      matrixInterval = setInterval(() => {
+        matrixCtx.fillStyle = 'rgba(4, 2, 2, 0.09)';
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        matrixCtx.fillStyle = '#3aff5e';
+        matrixCtx.font = fontSize + 'px monospace';
+        drops.forEach((y, i) => {
+          const text = glyphs[Math.floor(Math.random() * glyphs.length)];
+          matrixCtx.fillText(text, i * fontSize, y * fontSize);
+          if (y * fontSize > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        });
+      }, 45);
+    } else {
+      clearInterval(matrixInterval);
+      window.removeEventListener('resize', resizeMatrix);
+      if (matrixCanvas) matrixCanvas.remove();
+      matrixCanvas = null;
+    }
+  }
+
+  /* ---- Double-click the mascot: page gravity toggle ---- */
+  let gravityOn = false;
+  window.__toggleGravity = function () {
+    gravityOn = !gravityOn;
+    document.body.classList.toggle('gravity-mode', gravityOn);
+    const targets = document.querySelectorAll('.navbar, .bento .card, .cta-banner, .contact-card, .site-footer');
+    targets.forEach((el) => {
+      if (gravityOn) {
+        const rot = (Math.random() * 50 - 25).toFixed(1);
+        const drift = (Math.random() * 60 - 30).toFixed(0);
+        el.style.transition = `transform ${0.7 + Math.random() * 0.5}s cubic-bezier(0.55,0,0.85,0.35)`;
+        el.style.transform = `translate(${drift}px, 75vh) rotate(${rot}deg)`;
+      } else {
+        el.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+        el.style.transform = '';
+      }
+    });
+  };
+
+  /* ==================================================================== */
+  /* Mascot — idle stand-and-greet + drag to dismiss                       */
   /* ==================================================================== */
   if (!prefersReducedMotion) {
     (function mascotGame() {
@@ -719,249 +874,87 @@
       const bubbleEl = document.getElementById('mascotBubble');
       if (!mascotEl) return;
 
-      let userTookControl = false;
+      const PHRASES = [
+        'Hi', 'Hello!', 'Nice to see you!', 'Thanks for visiting!',
+        "Let's play Minecraft together", 'How are you?'
+      ];
 
-      function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
-      function setPos(x, y) {
-        mascotEl.style.left = x + 'px';
-        mascotEl.style.top = y + 'px';
-      }
-      function groundY() {
-        return window.innerHeight - mascotEl.offsetHeight - 22;
-      }
-      function centerX() {
-        return window.innerWidth / 2 - mascotEl.offsetWidth / 2;
-      }
-      function animateTo(x, y, duration, easing) {
-        return new Promise((resolve) => {
-          mascotEl.style.transition = `left ${duration}ms ${easing}, top ${duration}ms ${easing}`;
-          void mascotEl.offsetWidth; // force reflow so transition applies
-          mascotEl.style.left = x + 'px';
-          mascotEl.style.top = y + 'px';
-          setTimeout(resolve, duration);
-        });
-      }
-      function showBubble(text) {
-        bubbleEl.textContent = text;
-        bubbleEl.classList.add('show');
-      }
-      function hideBubble() {
-        bubbleEl.classList.remove('show');
-      }
-
-      async function peekFromSide(side) {
-        if (userTookControl) return;
-        const w = mascotEl.offsetWidth;
-        const h = mascotEl.offsetHeight;
-        let startX, peekX, startY, peekY;
-
-        if (side === 'right') {
-          startY = peekY = window.innerHeight / 2 - h / 2;
-          startX = window.innerWidth - w * 0.32;
-          peekX = window.innerWidth - w * 0.78;
-        } else if (side === 'left') {
-          startY = peekY = window.innerHeight / 2 - h / 2;
-          startX = -w * 0.68;
-          peekX = -w * 0.22;
-        } else {
-          startX = peekX = centerX();
-          startY = window.innerHeight - h * 0.22;
-          peekY = window.innerHeight - h * 0.78;
-        }
-
-        mascotEl.style.transition = 'none';
-        setPos(startX, startY);
-        mascotEl.classList.add('visible');
-        void mascotEl.offsetWidth;
-        await animateTo(peekX, peekY, 480, 'ease-out');
-        if (userTookControl) return;
-        await wait(3000);
-        if (userTookControl) return;
-        await animateTo(startX, startY, 420, 'ease-in');
-        mascotEl.classList.remove('visible');
-      }
-
-      async function fallFromTop() {
-        if (userTookControl) return;
-        const x = 40 + Math.random() * (window.innerWidth - mascotEl.offsetWidth - 80);
-        const startY = -mascotEl.offsetHeight - 30;
-        mascotEl.style.transition = 'none';
-        setPos(x, startY);
-        mascotEl.classList.add('visible');
-        void mascotEl.offsetWidth;
-        await animateTo(x, groundY(), 850, 'cubic-bezier(0.55,0,1,0.45)');
-        if (userTookControl) return;
-        mascotEl.classList.add('landing');
-        await wait(420);
-        mascotEl.classList.remove('landing');
-      }
-
-      async function runIntro() {
-        await wait(2000);
-        if (userTookControl) return;
-
-        const gY = groundY();
-        mascotEl.style.transition = 'none';
-        setPos(-140, gY);
-        mascotEl.classList.add('visible', 'walking');
-        void mascotEl.offsetWidth;
-
-        await animateTo(centerX(), gY, 1500, 'ease-out');
-        if (userTookControl) return;
-
-        mascotEl.classList.remove('walking');
-        mascotEl.classList.add('greeting');
-        showBubble('Hello! 👋');
-        await wait(1300);
-        hideBubble();
-        mascotEl.classList.remove('greeting');
-        if (userTookControl) return;
-
-        mascotEl.classList.add('walking');
-        await animateTo(window.innerWidth + 80, gY, 850, 'ease-in');
-        mascotEl.classList.remove('walking', 'visible');
-        if (userTookControl) return;
-
-        await wait(2000);
-        await peekFromSide('right');
-        if (userTookControl) return;
-        await wait(2000);
-        await peekFromSide('left');
-        if (userTookControl) return;
-        await wait(2000);
-        await peekFromSide('bottom');
-        if (userTookControl) return;
-
-        await wait(1400);
-        await fallFromTop();
-        if (userTookControl) return;
-
-        mascotEl.classList.add('idle-breathe');
-      }
-
-      /* ---- Drag, click-poke, and throw physics ---- */
+      let vanished = false;
       let dragging = false;
       let offsetX = 0, offsetY = 0;
-      let moved = false;
-      let track = [];
-      let throwFrame = null;
+      let greetTimeout = null;
+      let idleInterval = null;
+
+      function placeInitial() {
+        const x = 18;
+        const y = window.innerHeight - mascotEl.offsetHeight - 18;
+        mascotEl.style.left = x + 'px';
+        mascotEl.style.top = y + 'px';
+        mascotEl.classList.add('visible');
+      }
+      placeInitial();
+
+      function greetOnce() {
+        if (vanished) return;
+        mascotEl.classList.add('greeting');
+        bubbleEl.textContent = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+        bubbleEl.classList.add('show');
+        clearTimeout(greetTimeout);
+        greetTimeout = setTimeout(() => {
+          if (vanished) return;
+          mascotEl.classList.remove('greeting');
+          bubbleEl.classList.remove('show');
+        }, 1500);
+      }
+
+      setTimeout(greetOnce, 1200);
+      idleInterval = setInterval(greetOnce, 3000);
+
+      function vanish() {
+        vanished = true;
+        clearInterval(idleInterval);
+        clearTimeout(greetTimeout);
+        mascotEl.classList.remove('visible', 'greeting');
+        bubbleEl.classList.remove('show');
+        mascotEl.style.pointerEvents = 'none';
+      }
+      window.__mascotVanish = vanish;
 
       mascotEl.addEventListener('pointerdown', (e) => {
-        userTookControl = true;
-        if (throwFrame) cancelAnimationFrame(throwFrame);
+        if (vanished) return;
         dragging = true;
-        moved = false;
         mascotEl.setPointerCapture(e.pointerId);
         mascotEl.classList.add('dragging');
-        mascotEl.classList.remove('idle-breathe', 'walking', 'greeting', 'landing');
-        mascotEl.classList.add('visible');
-        mascotEl.style.transform = '';
-        mascotEl.style.transition = 'none';
+        mascotEl.classList.remove('greeting');
+        bubbleEl.classList.remove('show');
+        clearTimeout(greetTimeout);
         const rect = mascotEl.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
-        track = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
       });
 
       window.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        moved = true;
-        setPos(e.clientX - offsetX, e.clientY - offsetY);
-        track.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-        if (track.length > 6) track.shift();
+        if (!dragging || vanished) return;
+        mascotEl.style.left = (e.clientX - offsetX) + 'px';
+        mascotEl.style.top = (e.clientY - offsetY) + 'px';
       });
 
       window.addEventListener('pointerup', () => {
-        if (!dragging) return;
+        if (!dragging || vanished) return;
         dragging = false;
         mascotEl.classList.remove('dragging');
-
-        if (!moved) {
-          mascotEl.classList.add('poked');
-          setTimeout(() => {
-            mascotEl.classList.remove('poked');
-            mascotEl.classList.add('idle-breathe');
-          }, 750);
-          return;
-        }
-
-        const first = track[0];
-        const last = track[track.length - 1];
-        const dt = Math.max(last.t - first.t, 1);
-        const vx = (last.x - first.x) / dt;
-        const vy = (last.y - first.y) / dt;
-        const speed = Math.hypot(vx, vy);
-
-        if (speed > 0.55) {
-          throwMascot(vx, vy);
-        } else {
-          mascotEl.classList.add('landing');
-          setTimeout(() => {
-            mascotEl.classList.remove('landing');
-            mascotEl.classList.add('idle-breathe');
-          }, 420);
+        const rect = mascotEl.getBoundingClientRect();
+        const outOfBounds = rect.right < 0 || rect.left > window.innerWidth ||
+          rect.bottom < 0 || rect.top > window.innerHeight;
+        if (outOfBounds) {
+          vanish();
         }
       });
 
-      function throwMascot(vx, vy) {
-        mascotEl.classList.remove('idle-breathe');
-        let posX = parseFloat(mascotEl.style.left) || 0;
-        let posY = parseFloat(mascotEl.style.top) || 0;
-        let vX = vx * 15;
-        let vY = vy * 15;
-        const gravity = 1.05;
-        const friction = 0.992;
-
-        function frame() {
-          vY += gravity;
-          vX *= friction;
-          posX += vX;
-          posY += vY;
-          const ground = groundY();
-
-          if (posY > ground) {
-            posY = ground;
-            vY *= -0.42;
-            if (Math.abs(vY) < 2.2) vY = 0;
-          }
-
-          setPos(posX, posY);
-          const tilt = Math.min(Math.max(vX * 3.5, -65), 65);
-          mascotEl.style.transform = `rotate(${tilt}deg)`;
-
-          if (posX < -mascotEl.offsetWidth - 60 || posX > window.innerWidth + 60) {
-            mascotEl.classList.remove('visible');
-            mascotEl.style.transform = '';
-            setTimeout(respawn, 1000);
-            return;
-          }
-
-          if (Math.abs(vX) > 0.04 || Math.abs(vY) > 0.4 || posY < ground - 1) {
-            throwFrame = requestAnimationFrame(frame);
-          } else {
-            mascotEl.style.transform = '';
-            mascotEl.classList.add('landing');
-            setTimeout(() => {
-              mascotEl.classList.remove('landing');
-              mascotEl.classList.add('idle-breathe');
-            }, 420);
-          }
-        }
-        throwFrame = requestAnimationFrame(frame);
-      }
-
-      async function respawn() {
-        const gY = groundY();
-        mascotEl.style.transition = 'none';
-        setPos(-140, gY);
-        mascotEl.classList.add('visible', 'walking');
-        void mascotEl.offsetWidth;
-        await animateTo(centerX(), gY, 1100, 'ease-out');
-        mascotEl.classList.remove('walking');
-        mascotEl.classList.add('idle-breathe');
-      }
-
-      runIntro();
+      /* Double-click the mascot toggles the page-gravity easter egg */
+      mascotEl.addEventListener('dblclick', () => {
+        if (window.__toggleGravity) window.__toggleGravity();
+      });
     })();
   }
 </script>
