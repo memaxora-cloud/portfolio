@@ -324,6 +324,114 @@
 
   </main>
 
+  <!-- ============ LIFE TIMELINE ============ -->
+  <section class="card life-timeline-card">
+    <p class="card-label">My Story</p>
+    <h2 class="card-heading" style="font-size:1.3rem;">Events in My Life</h2>
+
+    <div class="life-timeline">
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2010</span>
+          <h3 class="lt-title">A New Beginning</h3>
+          <p class="lt-desc">Born into this world and began my journey.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-right">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2014</span>
+          <h3 class="lt-title">First Day of School</h3>
+          <p class="lt-desc">Started my school life and took my first steps into education.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2016</span>
+          <h3 class="lt-title">My First Friend</h3>
+          <p class="lt-desc">Made my first close friend, Ahmed Ashraf.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-right">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2017</span>
+          <h3 class="lt-title">A Difficult Year</h3>
+          <p class="lt-desc">Lost my mother. A painful moment that became an important part of my life.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2020</span>
+          <h3 class="lt-title">My First Laptop</h3>
+          <p class="lt-desc">Got my first laptop, opening the door to technology, the internet, and new possibilities.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-right">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2021</span>
+          <h3 class="lt-title">Quadox</h3>
+          <p class="lt-desc">Started my first business venture, Quadox, and took my first serious steps into entrepreneurship.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2023</span>
+          <h3 class="lt-title">EmporumX</h3>
+          <p class="lt-desc">Started EmporumX, continuing my journey of experimenting with online business.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-right">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2024</span>
+          <h3 class="lt-title">My First Website</h3>
+          <p class="lt-desc">Built my first website, beginning my journey into web development.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2025</span>
+          <h3 class="lt-title">The Science Struggle</h3>
+          <p class="lt-desc lt-bn">বিজ্ঞান বেছে নিয়ে আমি এখন চরম ভোগান্তিতে পড়েছি।</p>
+          <p class="lt-desc">I chose the Science group — and now I'm seriously suffering because of it.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-right">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2026</span>
+          <h3 class="lt-title">Present</h3>
+          <p class="lt-desc">Still learning, building, experimenting, and figuring out where this journey will take me.</p>
+        </div>
+      </div>
+
+      <div class="lt-item lt-left">
+        <div class="lt-dot"></div>
+        <div class="lt-content">
+          <span class="lt-year">2027</span>
+          <h3 class="lt-title">SSC</h3>
+          <p class="lt-desc">My SSC examination year. One of the biggest milestones ahead.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ LIBRARY CTA ============ -->
   <section class="card cta-banner">
     <p class="card-label">Photo Album</p>
@@ -408,11 +516,6 @@
 
 </div>
 
-<div class="mascot" id="mascot">
-  <div class="mascot-bubble" id="mascotBubble">Hello! 👋</div>
-  <img src="mascot.png" alt="Mascot" draggable="false" />
-</div>
-
 <script>
   /* ---------------- Mobile nav toggle ---------------- */
   const navToggle = document.getElementById('navToggle');
@@ -459,6 +562,25 @@
   });
   updateScrollProgress();
 
+  /* ---------------- Life timeline scroll reveal ---------------- */
+  const ltItems = document.querySelectorAll('.lt-item');
+  if (ltItems.length) {
+    if ('IntersectionObserver' in window) {
+      const ltObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            ltObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.25, rootMargin: '0px 0px -40px 0px' });
+      ltItems.forEach((item) => ltObserver.observe(item));
+    } else {
+      ltItems.forEach((item) => item.classList.add('in-view'));
+    }
+  }
+
+
   /* ---------------- Custom cursor ---------------- */
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -485,7 +607,7 @@
     document.addEventListener('mousedown', () => cursorRing.classList.add('clicking'));
     document.addEventListener('mouseup', () => cursorRing.classList.remove('clicking'));
 
-    const hoverSelector = 'a, button, input, textarea, .copy-tag, .mascot';
+    const hoverSelector = 'a, button, input, textarea, .copy-tag';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(hoverSelector)) cursorRing.classList.add('hovering');
     });
@@ -530,42 +652,92 @@
   }
 
   /* ---------------- Views / MSG live stat counters (CounterAPI v2) ---------------- */
-  /* These are REAL shared counters — every visitor on every device increments the
-     same remote number, so the figure shown is identical everywhere, live.
-     Workspace/counter is public and keyless. If the network call fails (offline,
-     ad-blocker, API hiccup) we fall back to a local per-device count so the UI
-     never breaks — but the fallback is clearly a lesser, non-synced substitute. */
+  /* Real shared counters — every visitor, every device, hits the same remote
+     number, formatted compactly (980, 1k, 1.2k, 1M...) and refreshed on a timer
+     so the figure updates live for anyone already on the page, not just on load.
+     If the network call fails (offline, ad-blocker, API hiccup) we fall back to
+     a local per-device count so the UI never breaks — a lesser, non-synced substitute. */
   const COUNTER_WORKSPACE = 'labibfun-portfolio';
+  const POLL_MS = 20000;
 
-  async function liveStat(counterName, base, el) {
+  function formatCompact(n) {
+    if (n < 1000) return String(n);
+    if (n < 1000000) {
+      const v = n / 1000;
+      return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + 'k';
+    }
+    const v = n / 1000000;
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + 'M';
+  }
+
+  function fallbackBump(counterName, base, el) {
+    const storeKey = 'labib_stat_fallback_' + counterName;
+    let val = Number(localStorage.getItem(storeKey));
+    if (!val || isNaN(val)) val = 0;
+    val += 1;
+    localStorage.setItem(storeKey, String(val));
+    el.textContent = formatCompact(base + val);
+  }
+
+  async function counterRequest(counterName, mode) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const url = mode === 'up'
+      ? `https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}/up`
+      : `https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}`;
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const upCount = data && data.data && typeof data.data.up_count === 'number' ? data.data.up_count : null;
+    if (upCount === null) throw new Error('unexpected shape');
+    return upCount;
+  }
+
+  async function liveStatInit(counterName, base, el) {
     if (!el) return;
-    const fallback = () => {
-      const storeKey = 'labib_stat_fallback_' + counterName;
-      let val = Number(localStorage.getItem(storeKey));
-      if (!val || isNaN(val)) val = 0;
-      val += 1;
-      localStorage.setItem(storeKey, String(val));
-      el.textContent = (base + val).toLocaleString();
-    };
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 4000);
-      const res = await fetch(`https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}/up`, { signal: controller.signal });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error('bad response');
-      const data = await res.json();
-      const upCount = data && data.data && typeof data.data.up_count === 'number' ? data.data.up_count : null;
-      if (upCount === null) throw new Error('unexpected shape');
-      el.textContent = (base + upCount).toLocaleString();
+      const upCount = await counterRequest(counterName, 'up');
+      el.textContent = formatCompact(base + upCount);
     } catch (err) {
-      fallback();
+      fallbackBump(counterName, base, el);
+    }
+  }
+
+  async function liveStatRefresh(counterName, base, el) {
+    if (!el) return;
+    try {
+      const upCount = await counterRequest(counterName, 'get');
+      el.textContent = formatCompact(base + upCount);
+    } catch (err) {
+      /* keep last known value on a failed background refresh */
     }
   }
 
   const viewsCountEl = document.getElementById('viewsCount');
   const msgCountEl = document.getElementById('msgCount');
-  liveStat('views', 920, viewsCountEl);
-  window.bumpMsgStat = () => liveStat('msgs', 98, msgCountEl);
+
+  liveStatInit('views', 920, viewsCountEl);
+
+  /* msgs must NOT increment just from loading the page — read-only fetch on load */
+  (async () => {
+    if (!msgCountEl) return;
+    try {
+      const val = await counterRequest('msgs', 'get');
+      msgCountEl.textContent = formatCompact(98 + val);
+    } catch (err) {
+      const storeKey = 'labib_stat_fallback_msgs';
+      const val = Number(localStorage.getItem(storeKey)) || 0;
+      msgCountEl.textContent = formatCompact(98 + val);
+    }
+  })();
+
+  window.bumpMsgStat = () => liveStatInit('msgs', 98, msgCountEl);
+
+  setInterval(() => {
+    liveStatRefresh('views', 920, viewsCountEl);
+    liveStatRefresh('msgs', 98, msgCountEl);
+  }, POLL_MS);
 
 
   document.querySelectorAll('.copy-tag').forEach((btn) => {
@@ -846,7 +1018,7 @@
     }
   }
 
-  /* ---- Double-click the mascot: page gravity toggle ---- */
+  /* ---- Double-click the logo: page gravity toggle ---- */
   let gravityOn = false;
   window.__toggleGravity = function () {
     gravityOn = !gravityOn;
@@ -864,99 +1036,10 @@
       }
     });
   };
+  const brandEl = document.querySelector('.brand');
+  if (brandEl) brandEl.addEventListener('dblclick', (e) => { e.preventDefault(); window.__toggleGravity(); });
 
-  /* ==================================================================== */
-  /* Mascot — idle stand-and-greet + drag to dismiss                       */
-  /* ==================================================================== */
-  if (!prefersReducedMotion) {
-    (function mascotGame() {
-      const mascotEl = document.getElementById('mascot');
-      const bubbleEl = document.getElementById('mascotBubble');
-      if (!mascotEl) return;
 
-      const PHRASES = [
-        'Hi', 'Hello!', 'Nice to see you!', 'Thanks for visiting!',
-        "Let's play Minecraft together", 'How are you?'
-      ];
-
-      let vanished = false;
-      let dragging = false;
-      let offsetX = 0, offsetY = 0;
-      let greetTimeout = null;
-      let idleInterval = null;
-
-      function placeInitial() {
-        const x = 18;
-        const y = window.innerHeight - mascotEl.offsetHeight - 18;
-        mascotEl.style.left = x + 'px';
-        mascotEl.style.top = y + 'px';
-        mascotEl.classList.add('visible');
-      }
-      placeInitial();
-
-      function greetOnce() {
-        if (vanished) return;
-        mascotEl.classList.add('greeting');
-        bubbleEl.textContent = PHRASES[Math.floor(Math.random() * PHRASES.length)];
-        bubbleEl.classList.add('show');
-        clearTimeout(greetTimeout);
-        greetTimeout = setTimeout(() => {
-          if (vanished) return;
-          mascotEl.classList.remove('greeting');
-          bubbleEl.classList.remove('show');
-        }, 1500);
-      }
-
-      setTimeout(greetOnce, 1200);
-      idleInterval = setInterval(greetOnce, 3000);
-
-      function vanish() {
-        vanished = true;
-        clearInterval(idleInterval);
-        clearTimeout(greetTimeout);
-        mascotEl.classList.remove('visible', 'greeting');
-        bubbleEl.classList.remove('show');
-        mascotEl.style.pointerEvents = 'none';
-      }
-      window.__mascotVanish = vanish;
-
-      mascotEl.addEventListener('pointerdown', (e) => {
-        if (vanished) return;
-        dragging = true;
-        mascotEl.setPointerCapture(e.pointerId);
-        mascotEl.classList.add('dragging');
-        mascotEl.classList.remove('greeting');
-        bubbleEl.classList.remove('show');
-        clearTimeout(greetTimeout);
-        const rect = mascotEl.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-      });
-
-      window.addEventListener('pointermove', (e) => {
-        if (!dragging || vanished) return;
-        mascotEl.style.left = (e.clientX - offsetX) + 'px';
-        mascotEl.style.top = (e.clientY - offsetY) + 'px';
-      });
-
-      window.addEventListener('pointerup', () => {
-        if (!dragging || vanished) return;
-        dragging = false;
-        mascotEl.classList.remove('dragging');
-        const rect = mascotEl.getBoundingClientRect();
-        const outOfBounds = rect.right < 0 || rect.left > window.innerWidth ||
-          rect.bottom < 0 || rect.top > window.innerHeight;
-        if (outOfBounds) {
-          vanish();
-        }
-      });
-
-      /* Double-click the mascot toggles the page-gravity easter egg */
-      mascotEl.addEventListener('dblclick', () => {
-        if (window.__toggleGravity) window.__toggleGravity();
-      });
-    })();
-  }
 </script>
 
 </body>
