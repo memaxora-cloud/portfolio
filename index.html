@@ -66,8 +66,8 @@
       <a href="#home">About</a>
       <a href="#study">Study</a>
       <a href="#games">Games</a>
-      <a href="library.html">Library</a>
-      <a href="fun.html">Fun Zone</a>
+      <a href="library/">Library</a>
+      <a href="fun/">Fun Zone</a>
       <a href="#contact">Contact</a>
     </nav>
 
@@ -436,7 +436,7 @@
   <section class="card cta-banner">
     <p class="card-label">Photo Album</p>
     <h2 class="card-heading" style="font-size:1.3rem;">A peek into my library</h2>
-    <a class="cta-btn" href="library.html">Enter Library <span aria-hidden="true">→</span></a>
+    <a class="cta-btn" href="library/">Enter Library <span aria-hidden="true">→</span></a>
   </section>
 
   <!-- ============ FUN ZONE ============ -->
@@ -457,7 +457,7 @@
         <span class="fz-name">Pong vs AI</span>
       </div>
     </div>
-    <a class="cta-btn" href="fun.html">Enter The Fun Zone <span aria-hidden="true">→</span></a>
+    <a class="cta-btn" href="fun/">Enter The Fun Zone <span aria-hidden="true">→</span></a>
   </section>
 
   <!-- ============ 10. CONTACT ============ -->
@@ -651,13 +651,23 @@
     });
   }
 
-  /* ---------------- Views / MSG live stat counters (CounterAPI v2) ---------------- */
-  /* Real shared counters — every visitor, every device, hits the same remote
-     number, formatted compactly (980, 1k, 1.2k, 1M...) and refreshed on a timer
-     so the figure updates live for anyone already on the page, not just on load.
-     If the network call fails (offline, ad-blocker, API hiccup) we fall back to
-     a local per-device count so the UI never breaks — a lesser, non-synced substitute. */
-  const COUNTER_WORKSPACE = 'labibfun-portfolio';
+  /* ---------------- Views / MSG live stat counters ---------------- */
+  /* Three-tier reliability chain:
+       1) OWN_COUNTER_BASE — your own Cloudflare Worker (see
+          labib-stats-worker.js). If set, this is used and is the ONLY
+          tier that guarantees an identical number on every device —
+          because it isn't a third-party domain that ad-blockers or
+          privacy extensions can silently block.
+       2) CounterAPI — a free third-party counter, used only if your
+          own Worker isn't configured. Works for most visitors, but
+          some browsers/networks block it, which is why numbers can
+          drift between devices on this tier alone.
+       3) Local per-device count — an absolute last resort so the UI
+          never breaks, but it is NOT synced with anyone else.
+     Set OWN_COUNTER_BASE once you've deployed the Worker (instructions
+     are in labib-stats-worker.js) to make the numbers fully reliable. */
+  const OWN_COUNTER_BASE = '';
+  const COUNTERAPI_WORKSPACE = 'labibfun-portfolio';
   const POLL_MS = 20000;
 
   function formatCompact(n) {
@@ -679,16 +689,32 @@
     el.textContent = formatCompact(base + val);
   }
 
-  async function counterRequest(counterName, mode) {
+  async function fetchJson(url) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 4000);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('bad response');
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /* Returns the counter's current value, trying tier 1 then tier 2. */
+  async function counterRequest(counterName, mode) {
+    if (OWN_COUNTER_BASE) {
+      try {
+        const url = mode === 'up' ? `${OWN_COUNTER_BASE}/${counterName}/up` : `${OWN_COUNTER_BASE}/${counterName}`;
+        const data = await fetchJson(url);
+        if (data && typeof data.value === 'number') return data.value;
+      } catch (err) { /* fall through to tier 2 */ }
+    }
     const url = mode === 'up'
-      ? `https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}/up`
-      : `https://api.counterapi.dev/v2/${COUNTER_WORKSPACE}/${counterName}`;
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error('bad response');
-    const data = await res.json();
+      ? `https://api.counterapi.dev/v2/${COUNTERAPI_WORKSPACE}/${counterName}/up`
+      : `https://api.counterapi.dev/v2/${COUNTERAPI_WORKSPACE}/${counterName}`;
+    const data = await fetchJson(url);
     const upCount = data && data.data && typeof data.data.up_count === 'number' ? data.data.up_count : null;
     if (upCount === null) throw new Error('unexpected shape');
     return upCount;
@@ -697,46 +723,40 @@
   async function liveStatInit(counterName, base, el) {
     if (!el) return;
     try {
-      const upCount = await counterRequest(counterName, 'up');
-      el.textContent = formatCompact(base + upCount);
+      const value = await counterRequest(counterName, 'up');
+      el.textContent = formatCompact(base + value);
     } catch (err) {
       fallbackBump(counterName, base, el);
     }
   }
 
-  async function liveStatRefresh(counterName, base, el) {
+  async function liveStatRead(counterName, base, el) {
     if (!el) return;
     try {
-      const upCount = await counterRequest(counterName, 'get');
-      el.textContent = formatCompact(base + upCount);
+      const value = await counterRequest(counterName, 'get');
+      el.textContent = formatCompact(base + value);
     } catch (err) {
-      /* keep last known value on a failed background refresh */
+      const storeKey = 'labib_stat_fallback_' + counterName;
+      const val = Number(localStorage.getItem(storeKey)) || 0;
+      el.textContent = formatCompact(base + val);
     }
   }
 
+  const VIEWS_BASE = 960;
+  const MSGS_BASE = 98;
   const viewsCountEl = document.getElementById('viewsCount');
   const msgCountEl = document.getElementById('msgCount');
 
-  liveStatInit('views', 920, viewsCountEl);
+  liveStatInit('views', VIEWS_BASE, viewsCountEl);
+  /* msgs must NOT increment just from loading the page — read-only on load */
+  liveStatRead('msgs', MSGS_BASE, msgCountEl);
+  window.bumpMsgStat = () => liveStatInit('msgs', MSGS_BASE, msgCountEl);
 
-  /* msgs must NOT increment just from loading the page — read-only fetch on load */
-  (async () => {
-    if (!msgCountEl) return;
-    try {
-      const val = await counterRequest('msgs', 'get');
-      msgCountEl.textContent = formatCompact(98 + val);
-    } catch (err) {
-      const storeKey = 'labib_stat_fallback_msgs';
-      const val = Number(localStorage.getItem(storeKey)) || 0;
-      msgCountEl.textContent = formatCompact(98 + val);
-    }
-  })();
-
-  window.bumpMsgStat = () => liveStatInit('msgs', 98, msgCountEl);
-
+  /* Background refresh so the number updates live for anyone already
+     on the page, without needing a reload. */
   setInterval(() => {
-    liveStatRefresh('views', 920, viewsCountEl);
-    liveStatRefresh('msgs', 98, msgCountEl);
+    liveStatRead('views', VIEWS_BASE, viewsCountEl);
+    liveStatRead('msgs', MSGS_BASE, msgCountEl);
   }, POLL_MS);
 
 
@@ -939,9 +959,11 @@
   /* Easter eggs                                                           */
   /* ==================================================================== */
 
-  /* ---- Triple-click anywhere: confetti burst ---- */
+  /* ---- Double-click anywhere: confetti burst ---- */
+  /* ---- Triple-click anywhere: page gravity toggle ---- */
   document.addEventListener('click', (e) => {
-    if (e.detail === 3) triggerConfetti();
+    if (e.detail === 2) triggerConfetti();
+    if (e.detail === 3 && window.__toggleGravity) window.__toggleGravity();
   });
 
   function triggerConfetti() {
@@ -1036,8 +1058,6 @@
       }
     });
   };
-  const brandEl = document.querySelector('.brand');
-  if (brandEl) brandEl.addEventListener('dblclick', (e) => { e.preventDefault(); window.__toggleGravity(); });
 
 
 </script>
