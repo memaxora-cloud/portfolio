@@ -6,6 +6,23 @@
   margin-top: var(--gap);
 }
 
+.section-heading {
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto 28px;
+}
+
+.section-heading .card-label {
+  justify-content: center;
+}
+
+.section-sub {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 .game-menu {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
