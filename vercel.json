@@ -1,0 +1,9 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": true,
+  "rewrites": [
+    { "source": "/fun", "destination": "/fun/index.html" },
+    { "source": "/fun/", "destination": "/fun/index.html" },
+    { "source": "/games/", "destination": "/fun/index.html" }
+  ]
+}
