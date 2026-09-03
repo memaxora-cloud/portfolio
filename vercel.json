@@ -4,6 +4,8 @@
   "rewrites": [
     { "source": "/fun", "destination": "/fun/index.html" },
     { "source": "/fun/", "destination": "/fun/index.html" },
-    { "source": "/games/", "destination": "/fun/index.html" }
+    { "source": "/clash", "destination": "/clash/index.html" },
+    { "source": "/Coc", "destination": "/clash/index.html" },
+    { "source": "/clash/", "destination": "/clash/index.html" }
   ]
 }
