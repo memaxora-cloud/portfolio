@@ -249,6 +249,426 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Giveaway box + leaderboard                                              */
+/* ---------------------------------------------------------------------- */
+
+.giveaway-grid {
+  margin-top: var(--gap);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+}
+
+.giveaway-card {
+  position: relative;
+  background: linear-gradient(150deg, rgba(57, 255, 106, 0.1), rgba(6, 20, 12, 0.9));
+  border: 1px solid rgba(57, 255, 106, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  overflow: hidden;
+}
+
+.giveaway-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 0%, rgba(57, 255, 106, 0.18), transparent 60%);
+  pointer-events: none;
+}
+
+.gw-loading, .gw-none {
+  color: #9fd9ae;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.gw-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+  text-shadow: 0 0 16px rgba(57, 255, 106, 0.5);
+}
+
+.gw-msg {
+  color: #c8f2d2;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.gw-msg b {
+  color: var(--cg-soft);
+}
+
+.gw-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-bottom: 22px;
+  font-size: 0.85rem;
+  color: #9fd9ae;
+  font-weight: 700;
+}
+
+.gw-stats span.val {
+  color: #fff;
+}
+
+.gw-join-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(120deg, #17c964, var(--cg));
+  color: #052b12;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  box-shadow: 0 14px 30px -12px rgba(57, 255, 106, 0.6);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.gw-join-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 20px 40px -14px rgba(57, 255, 106, 0.8);
+}
+
+.gw-join-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gw-ended-banner {
+  text-align: center;
+  color: #ffcc66;
+  font-weight: 700;
+  padding: 18px 0;
+}
+
+.winners-card {
+  background: rgba(6, 20, 12, 0.65);
+  border: 1px solid rgba(57, 255, 106, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+}
+
+.winners-heading {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cg);
+  margin: 0 0 16px;
+}
+
+.winners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.winners-empty {
+  color: #7fbf90;
+  font-size: 0.88rem;
+}
+
+.winner-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(57, 255, 106, 0.06);
+  border: 1px solid rgba(57, 255, 106, 0.18);
+  border-radius: 10px;
+}
+
+.winner-row .wr-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.winner-row .wr-prize {
+  color: var(--cg-soft);
+  font-size: 0.8rem;
+}
+
+.winner-row .wr-date {
+  color: #7fbf90;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 800px) {
+  .giveaway-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Giveaway modals (join + admin)                                          */
+/* ---------------------------------------------------------------------- */
+
+.gw-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10030;
+  background: rgba(2, 6, 4, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  padding: 20px;
+}
+
+.gw-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gw-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: linear-gradient(160deg, #071208, #04120a);
+  border: 1px solid rgba(57, 255, 106, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: 0 0 40px rgba(57, 255, 106, 0.25);
+}
+
+.gw-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(57, 255, 106, 0.1);
+  border: 1px solid rgba(57, 255, 106, 0.3);
+  color: #c8f2d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.gw-modal-close:hover {
+  background: rgba(57, 255, 106, 0.25);
+  transform: rotate(90deg);
+}
+
+.gw-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 20px;
+}
+
+.gw-field {
+  margin-bottom: 16px;
+}
+
+.gw-field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #9fd9ae;
+  margin-bottom: 6px;
+}
+
+.gw-field .req {
+  color: #ff8a8a;
+}
+
+.gw-field input {
+  width: 100%;
+  background: #050e08;
+  border: 1px solid rgba(57, 255, 106, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+
+.gw-field input:focus {
+  outline: none;
+  border-color: var(--cg);
+  box-shadow: 0 0 0 3px rgba(57, 255, 106, 0.15);
+}
+
+.gw-field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.gw-field-row .gw-field {
+  flex: 1;
+}
+
+.gw-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: #7fbf90;
+}
+
+.gw-hint.error {
+  color: #ff8a8a;
+}
+
+.gw-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.gw-btn {
+  flex: 1;
+  padding: 12px 18px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.gw-btn.primary {
+  background: linear-gradient(120deg, #17c964, var(--cg));
+  color: #052b12;
+}
+
+.gw-btn.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.gw-btn.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.gw-btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(57, 255, 106, 0.3);
+  color: #c8f2d2;
+}
+
+.gw-btn.secondary:hover {
+  border-color: var(--cg);
+}
+
+.gw-status {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-height: 1.2em;
+}
+
+.gw-status.ok { color: #4ade80; }
+.gw-status.err { color: #ff8a8a; }
+
+.gw-manage-sub {
+  color: #9fd9ae;
+  font-size: 0.85rem;
+  margin: 0 0 14px;
+}
+
+.gw-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.gw-entry-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(57, 255, 106, 0.06);
+  border: 1px solid rgba(57, 255, 106, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.gw-entry-info {
+  min-width: 0;
+}
+
+.gw-entry-info .en-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gw-entry-info .en-email {
+  color: #7fbf90;
+  font-size: 0.74rem;
+  font-family: "Courier New", monospace;
+}
+
+.gw-entry-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.gw-entry-actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.gw-entry-win {
+  background: rgba(255, 215, 0, 0.18);
+  color: #ffd700;
+}
+
+.gw-entry-win:hover {
+  background: rgba(255, 215, 0, 0.32);
+}
+
+.gw-entry-remove {
+  background: rgba(255, 90, 90, 0.15);
+  color: #ff8a8a;
+}
+
+.gw-entry-remove:hover {
+  background: rgba(255, 90, 90, 0.28);
+}
+
+.gw-entries-empty {
+  color: #7fbf90;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 16px 0;
+}
 </style>
 </head>
 <body>
@@ -292,6 +712,19 @@ body {
       <img src="image2.png" alt="Nona_soriyan clan badge" class="clash-hero-logo" />
       <h1>Nona<span>_soriyan</span></h1>
       <p>⚡ Welcome to Nona_soriyan! We are an active, fast-growing, and highly competitive clan. Don't miss out — join us now, complete your quests, and let's dominate together!</p>
+    </section>
+
+    <!-- ===== Giveaway ===== -->
+    <section class="giveaway-grid" id="giveawaySection">
+      <div class="giveaway-card" id="giveawayCard">
+        <p class="gw-loading">Loading giveaway…</p>
+      </div>
+      <div class="winners-card">
+        <h3 class="winners-heading">🏆 Past Winners</h3>
+        <div id="winnersList" class="winners-list">
+          <p class="winners-empty">Loading…</p>
+        </div>
+      </div>
     </section>
 
     <!-- ===== Warning ===== -->
@@ -443,6 +876,87 @@ body {
 
 </div>
 
+<!-- ===== Join Giveaway Modal ===== -->
+<div class="gw-modal-overlay" id="joinModalOverlay">
+  <div class="gw-modal">
+    <button class="gw-modal-close" id="joinModalClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <h3 class="gw-modal-title">🎁 Join the Giveaway</h3>
+    <form id="joinForm">
+      <div class="gw-field">
+        <label for="gwName">Your Clash of Clans ID Name <span class="req">*</span></label>
+        <input type="text" id="gwName" maxlength="60" required autocomplete="off" />
+      </div>
+      <div class="gw-field">
+        <label for="gwEmail">Your Email/Gmail <span class="req">*</span></label>
+        <input type="email" id="gwEmail" maxlength="120" required autocomplete="off" placeholder="you@gmail.com" />
+        <span class="gw-hint" id="gwEmailHint">Gmail addresses only.</span>
+      </div>
+      <div class="gw-modal-actions">
+        <button type="button" class="gw-btn secondary" id="joinModalCancel">← Back</button>
+        <button type="submit" class="gw-btn primary" id="joinSubmitBtn">Join Giveaway</button>
+      </div>
+      <p class="gw-status" id="joinStatus"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Admin Modal (secret: press ↑ four times) ===== -->
+<div class="gw-modal-overlay" id="adminModalOverlay">
+  <div class="gw-modal">
+    <button class="gw-modal-close" id="adminModalClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+
+    <div id="adminPasswordStep">
+      <h3 class="gw-modal-title">🔒 Giveaway Admin</h3>
+      <div class="gw-field">
+        <label for="adminPassword">Admin Password</label>
+        <input type="password" id="adminPassword" autocomplete="off" />
+      </div>
+      <div class="gw-modal-actions">
+        <button type="button" class="gw-btn secondary" id="adminCancelBtn">Cancel</button>
+        <button type="button" class="gw-btn primary" id="adminUnlockBtn">Unlock</button>
+      </div>
+      <p class="gw-status" id="adminAuthStatus"></p>
+    </div>
+
+    <div id="adminCreateStep" hidden>
+      <h3 class="gw-modal-title">🎉 Create a New Giveaway</h3>
+      <div class="gw-field">
+        <label for="adminPrize">Prize</label>
+        <input type="text" id="adminPrize" maxlength="120" placeholder="Gold Pass" />
+      </div>
+      <div class="gw-field-row">
+        <div class="gw-field">
+          <label for="adminWinnerCount">Winners</label>
+          <input type="number" id="adminWinnerCount" min="1" max="50" value="1" />
+        </div>
+        <div class="gw-field">
+          <label for="adminEndsIn">Ends in (hours)</label>
+          <input type="number" id="adminEndsIn" min="0.1" max="1440" value="24" step="0.5" />
+        </div>
+      </div>
+      <div class="gw-modal-actions">
+        <button type="button" class="gw-btn secondary" id="adminCreateBack" hidden>← Back to entries</button>
+        <button type="button" class="gw-btn primary" id="adminCreateBtn">Post Giveaway</button>
+      </div>
+      <p class="gw-status" id="adminCreateStatus"></p>
+    </div>
+
+    <div id="adminManageStep" hidden>
+      <h3 class="gw-modal-title">📋 Current Entries</h3>
+      <p class="gw-manage-sub" id="adminManageSub"></p>
+      <div class="gw-entries-list" id="adminEntriesList"></div>
+      <div class="gw-modal-actions">
+        <button type="button" class="gw-btn secondary" id="adminNewInstead">+ New Giveaway Instead</button>
+      </div>
+      <p class="gw-status" id="adminManageStatus"></p>
+    </div>
+  </div>
+</div>
+
 <script>
   /* ---------------- Mobile nav toggle ---------------- */
   const navToggle = document.getElementById('navToggle');
@@ -520,6 +1034,375 @@ body {
         label.textContent = original;
       }, 1300);
     });
+  });
+
+  /* ==================================================================== */
+  /* Giveaway                                                              */
+  /* ==================================================================== */
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  /* Fetch + parse JSON with friendly errors instead of raw technical
+     messages — covers network failure, a non-JSON response (e.g. the
+     backend isn't configured yet), and API-reported errors alike. */
+  async function safeFetchJson(url, options) {
+    let res;
+    try {
+      res = await fetch(url, options);
+    } catch (err) {
+      throw new Error('Could not reach the server. Check your connection and try again.');
+    }
+    let data;
+    try {
+      data = await res.json();
+    } catch (err) {
+      throw new Error('The giveaway backend isn\'t set up yet, or is temporarily unavailable.');
+    }
+    if (!res.ok) {
+      throw new Error((data && data.error) || 'Something went wrong.');
+    }
+    return data;
+  }
+
+  function formatCountdown(ms) {
+    if (ms <= 0) return 'Ended';
+    const s = Math.floor(ms / 1000);
+    const days = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const mins = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+    if (days > 0) return `${days}d ${hours}h ${mins}m`;
+    if (hours > 0) return `${hours}h ${mins}m ${secs}s`;
+    return `${mins}m ${secs}s`;
+  }
+
+  let activeGiveaway = null;
+  let countdownTimer = null;
+
+  async function fetchCurrentGiveaway() {
+    try {
+      const data = await safeFetchJson('/api/giveaway/current');
+      renderGiveawayCard(data);
+    } catch (err) {
+      document.getElementById('giveawayCard').innerHTML = `<p class="gw-none">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function renderGiveawayCard(data) {
+    const card = document.getElementById('giveawayCard');
+    clearInterval(countdownTimer);
+
+    if (!data || data.state === 'none') {
+      activeGiveaway = null;
+      card.innerHTML = '<p class="gw-none">🎁 No active giveaway right now — check back soon!</p>';
+      return;
+    }
+
+    if (data.state === 'ended') {
+      activeGiveaway = null;
+      card.innerHTML = `
+        <div class="gw-ended-banner">
+          🏆 ${data.winnerName ? `<b>${escapeHtml(data.winnerName)}</b> won` : 'The last giveaway ended'}${data.prize ? ` — ${escapeHtml(data.prize)}` : ''}!<br>
+          <span style="font-weight:400;font-size:0.85rem;">Stay tuned for the next one.</span>
+        </div>`;
+      return;
+    }
+
+    activeGiveaway = data;
+    const expired = data.state === 'expired';
+
+    card.innerHTML = `
+      <p class="gw-title">🎁 NEW GIVEAWAY 🎁</p>
+      <p class="gw-msg">Click the button below to join the giveaway of "<b>${escapeHtml(data.prize)}</b>". Must be in our clan &amp; give a valid Gmail for the selection.</p>
+      <div class="gw-stats">
+        <span>Winners: <span class="val">${data.winnerCount}</span></span>
+        <span>Prize: <span class="val">${escapeHtml(data.prize)}</span></span>
+        <span>Ends: <span class="val" id="gwCountdown">${expired ? 'Ended' : formatCountdown(data.endsAt - Date.now())}</span></span>
+      </div>
+      <button class="gw-join-btn" id="gwJoinBtn" ${expired ? 'disabled' : ''}>
+        ${expired ? '⏳ Giveaway Ended — Awaiting Winner' : `🎉 CLICK HERE TO JOIN — <span id="gwLiveCount">${data.entryCount}</span> joined`}
+      </button>
+    `;
+
+    if (!expired) {
+      countdownTimer = setInterval(() => {
+        const remaining = data.endsAt - Date.now();
+        const el = document.getElementById('gwCountdown');
+        if (el) el.textContent = remaining <= 0 ? 'Ended' : formatCountdown(remaining);
+        if (remaining <= 0) { clearInterval(countdownTimer); fetchCurrentGiveaway(); }
+      }, 1000);
+      document.getElementById('gwJoinBtn').addEventListener('click', openJoinModal);
+    }
+  }
+
+  async function fetchWinners() {
+    try {
+      const data = await safeFetchJson('/api/giveaway/winners');
+      renderWinners(data.winners || []);
+    } catch (err) {
+      document.getElementById('winnersList').innerHTML = `<p class="winners-empty">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function renderWinners(winners) {
+    const el = document.getElementById('winnersList');
+    if (!winners.length) {
+      el.innerHTML = '<p class="winners-empty">No winners yet — be the first!</p>';
+      return;
+    }
+    el.innerHTML = winners.map((w) => `
+      <div class="winner-row">
+        <span class="wr-name">🏆 ${escapeHtml(w.winnerName)}</span>
+        <span class="wr-prize">${escapeHtml(w.prize)}</span>
+        <span class="wr-date">${new Date(w.endedAt).toLocaleDateString()}</span>
+      </div>
+    `).join('');
+  }
+
+  fetchCurrentGiveaway();
+  fetchWinners();
+  setInterval(fetchCurrentGiveaway, 10000);
+
+  /* ---- Join modal ---- */
+  const joinModalOverlay = document.getElementById('joinModalOverlay');
+  const joinForm = document.getElementById('joinForm');
+  const joinStatus = document.getElementById('joinStatus');
+  const gwEmailHint = document.getElementById('gwEmailHint');
+  const GMAIL_RE_GW = /^[^\s@]+@gmail\.com$/i;
+
+  function openJoinModal() {
+    if (!activeGiveaway) return;
+    joinStatus.textContent = '';
+    joinStatus.className = 'gw-status';
+    joinForm.reset();
+    gwEmailHint.textContent = 'Gmail addresses only.';
+    gwEmailHint.classList.remove('error');
+    joinModalOverlay.classList.add('open');
+  }
+  function closeJoinModal() { joinModalOverlay.classList.remove('open'); }
+
+  document.getElementById('joinModalClose').addEventListener('click', closeJoinModal);
+  document.getElementById('joinModalCancel').addEventListener('click', closeJoinModal);
+  joinModalOverlay.addEventListener('click', (e) => { if (e.target === joinModalOverlay) closeJoinModal(); });
+
+  document.getElementById('gwEmail').addEventListener('input', (e) => {
+    const v = e.target.value.trim();
+    if (!v) { gwEmailHint.textContent = 'Gmail addresses only.'; gwEmailHint.classList.remove('error'); return; }
+    if (!GMAIL_RE_GW.test(v)) { gwEmailHint.textContent = 'Only Gmail addresses are accepted.'; gwEmailHint.classList.add('error'); }
+    else { gwEmailHint.textContent = 'Looks good.'; gwEmailHint.classList.remove('error'); }
+  });
+
+  joinForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('gwName').value.trim();
+    const email = document.getElementById('gwEmail').value.trim();
+    if (!name) { joinStatus.className = 'gw-status err'; joinStatus.textContent = 'Please enter your Clan ID name.'; return; }
+    if (!GMAIL_RE_GW.test(email)) { joinStatus.className = 'gw-status err'; joinStatus.textContent = 'Only Gmail addresses are accepted.'; return; }
+
+    const btn = document.getElementById('joinSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+    joinStatus.className = 'gw-status';
+    joinStatus.textContent = '';
+
+    try {
+      const data = await safeFetchJson('/api/giveaway/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+
+      joinStatus.className = 'gw-status ok';
+      joinStatus.textContent = data.alreadyJoined ? "You're already in this giveaway! 🎉" : "You're in! Good luck! 🎉";
+
+      const liveCountEl = document.getElementById('gwLiveCount');
+      if (liveCountEl) liveCountEl.textContent = data.entryCount;
+
+      setTimeout(closeJoinModal, 1600);
+    } catch (err) {
+      joinStatus.className = 'gw-status err';
+      joinStatus.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Join Giveaway';
+    }
+  });
+
+  /* ---- Admin modal ---- */
+  let adminPasswordCache = null;
+  const adminModalOverlay = document.getElementById('adminModalOverlay');
+  const adminPasswordStep = document.getElementById('adminPasswordStep');
+  const adminCreateStep = document.getElementById('adminCreateStep');
+  const adminManageStep = document.getElementById('adminManageStep');
+
+  function showAdminStep(step) {
+    adminPasswordStep.hidden = step !== 'password';
+    adminCreateStep.hidden = step !== 'create';
+    adminManageStep.hidden = step !== 'manage';
+  }
+
+  function openAdminModal() {
+    showAdminStep('password');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminAuthStatus').textContent = '';
+    adminModalOverlay.classList.add('open');
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+  }
+  function closeAdminModal() { adminModalOverlay.classList.remove('open'); }
+
+  document.getElementById('adminModalClose').addEventListener('click', closeAdminModal);
+  document.getElementById('adminCancelBtn').addEventListener('click', closeAdminModal);
+  adminModalOverlay.addEventListener('click', (e) => { if (e.target === adminModalOverlay) closeAdminModal(); });
+
+  document.getElementById('adminUnlockBtn').addEventListener('click', async () => {
+    const pw = document.getElementById('adminPassword').value;
+    const statusEl = document.getElementById('adminAuthStatus');
+    statusEl.className = 'gw-status';
+    statusEl.textContent = 'Checking...';
+    try {
+      const data = await safeFetchJson('/api/giveaway/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, action: 'list' })
+      });
+      adminPasswordCache = pw;
+      statusEl.textContent = '';
+      if (data.active) {
+        renderAdminEntries(data.giveaway, data.entries);
+        document.getElementById('adminCreateBack').hidden = true;
+        showAdminStep('manage');
+      } else {
+        showAdminStep('create');
+      }
+    } catch (err) {
+      statusEl.className = 'gw-status err';
+      statusEl.textContent = err.message;
+    }
+  });
+
+  function renderAdminEntries(giveaway, entries) {
+    document.getElementById('adminManageSub').textContent = `"${giveaway.prize}" — ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}`;
+    const listEl = document.getElementById('adminEntriesList');
+    if (!entries.length) {
+      listEl.innerHTML = '<p class="gw-entries-empty">No entries yet.</p>';
+      return;
+    }
+    listEl.innerHTML = entries.map((en) => `
+      <div class="gw-entry-row" data-email="${escapeHtml(en.email)}">
+        <div class="gw-entry-info">
+          <div class="en-name">${escapeHtml(en.name)}</div>
+          <div class="en-email">${escapeHtml(en.email)}</div>
+        </div>
+        <div class="gw-entry-actions">
+          <button class="gw-entry-win" data-action="win">🏆 Win</button>
+          <button class="gw-entry-remove" data-action="remove">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.gw-entry-row').forEach((row) => {
+      const email = row.dataset.email;
+      row.querySelector('[data-action="win"]').addEventListener('click', () => adminEndGiveaway(email));
+      row.querySelector('[data-action="remove"]').addEventListener('click', () => adminRemoveEntry(email));
+    });
+  }
+
+  async function refreshAdminManage() {
+    try {
+      const data = await safeFetchJson('/api/giveaway/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPasswordCache, action: 'list' })
+      });
+      if (data.active) renderAdminEntries(data.giveaway, data.entries);
+    } catch (err) { /* ignore background refresh failures */ }
+  }
+
+  async function adminRemoveEntry(email) {
+    const statusEl = document.getElementById('adminManageStatus');
+    try {
+      await safeFetchJson('/api/giveaway/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPasswordCache, action: 'remove', email })
+      });
+      statusEl.className = 'gw-status ok';
+      statusEl.textContent = 'Entry removed.';
+      refreshAdminManage();
+    } catch (err) {
+      statusEl.className = 'gw-status err';
+      statusEl.textContent = err.message;
+    }
+  }
+
+  async function adminEndGiveaway(email) {
+    if (!confirm('End the giveaway and declare this entry the winner?')) return;
+    const statusEl = document.getElementById('adminManageStatus');
+    try {
+      const data = await safeFetchJson('/api/giveaway/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPasswordCache, action: 'end', winnerEmail: email })
+      });
+      statusEl.className = 'gw-status ok';
+      statusEl.textContent = `⏰ Time Ended And Winner is @${data.winnerName}`;
+      document.getElementById('adminEntriesList').innerHTML = '';
+      fetchCurrentGiveaway();
+      fetchWinners();
+      setTimeout(closeAdminModal, 2200);
+    } catch (err) {
+      statusEl.className = 'gw-status err';
+      statusEl.textContent = err.message;
+    }
+  }
+
+  document.getElementById('adminNewInstead').addEventListener('click', () => {
+    document.getElementById('adminCreateBack').hidden = false;
+    showAdminStep('create');
+  });
+  document.getElementById('adminCreateBack').addEventListener('click', () => showAdminStep('manage'));
+
+  document.getElementById('adminCreateBtn').addEventListener('click', async () => {
+    const prize = document.getElementById('adminPrize').value.trim();
+    const winnerCount = document.getElementById('adminWinnerCount').value;
+    const endsInHours = document.getElementById('adminEndsIn').value;
+    const statusEl = document.getElementById('adminCreateStatus');
+    if (!prize) { statusEl.className = 'gw-status err'; statusEl.textContent = 'Prize is required.'; return; }
+    statusEl.className = 'gw-status';
+    statusEl.textContent = 'Posting...';
+    try {
+      await safeFetchJson('/api/giveaway/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPasswordCache, action: 'create', prize, winnerCount, endsInHours })
+      });
+      statusEl.className = 'gw-status ok';
+      statusEl.textContent = 'Giveaway posted! 🎉';
+      fetchCurrentGiveaway();
+      setTimeout(closeAdminModal, 1400);
+    } catch (err) {
+      statusEl.className = 'gw-status err';
+      statusEl.textContent = err.message;
+    }
+  });
+
+  /* ---- Secret gesture: press ↑ four times quickly ---- */
+  let upPresses = [];
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (e.key !== 'ArrowUp') { upPresses = []; return; }
+    const now = Date.now();
+    upPresses.push(now);
+    upPresses = upPresses.filter((t) => now - t < 2500);
+    if (upPresses.length >= 4) {
+      upPresses = [];
+      openAdminModal();
+    }
   });
 </script>
 
